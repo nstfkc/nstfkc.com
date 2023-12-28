@@ -40,7 +40,7 @@ const SidebarQuickActions = () => {
 
 export const Sidebar = () => {
   return (
-    <ScrollArea.Root className="max-w-[240px] bg-stone-50 h-dvh overflow-hidden">
+    <ScrollArea.Root className="min-w-[240px] bg-stone-50 h-dvh overflow-hidden">
       <ScrollArea.Viewport className="h-full w-full border-r-[1px] border-stone-200">
         <div className="p-2 sticky top-0 border-b-[1px] bg-stone-50 border-stone-200 z-10">
           <SidebarHeader />
