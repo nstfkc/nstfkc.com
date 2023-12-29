@@ -1,4 +1,4 @@
-import { Content } from "./components/Content";
+import { Companies } from "./components/Companies";
 import { Sidebar } from "./components/Sidebar";
 
 export default function Home() {
@@ -7,7 +7,7 @@ export default function Home() {
       <div className="flex">
         <Sidebar />
         <div className="flex-1">
-          <Content />
+          <Companies />
         </div>
       </div>
     </main>

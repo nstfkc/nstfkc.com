@@ -6,7 +6,7 @@ export const SidebarSearch = () => {
       className={[
         "w-full px-2 py-1",
         "flex items-center justify-between",
-        "bg-white shadow-md border border-stone-200/70 rounded-lg text-sm",
+        "bg-white shadow-sm border border-stone-200/70 rounded-lg text-sm",
       ].join(" ")}
     >
       <div className="flex items-center gap-2 ">
