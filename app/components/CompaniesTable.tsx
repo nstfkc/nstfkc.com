@@ -231,8 +231,8 @@ export const CompaniesTable = () => {
     <div>
       <TableFilters />
       <div className="px-4">
-        <table className="table-fixed w-full border-y border-collapse text-xs">
-          <thead className="">
+        <table className="relative h-full table-fixed w-full border-y border-collapse text-xs">
+          <thead className="sticky top-0 z-[10] bg-stone-50">
             <tr className="w-full border-y">
               <td className="border-r">
                 <div className="flex items-center gap-1 font-normal text-sm p-2">
@@ -321,7 +321,7 @@ export const CompaniesTable = () => {
               );
             })}
           </tbody>
-          <tfoot>
+          <tfoot className="sticky top-0">
             <tr>
               <td className="border-r">
                 <div className="text-right p-2">
