@@ -1,6 +1,7 @@
 // eslint-disable-file @next/next/no-img-element, jsx-a11y/alt-text
 "use client";
 
+import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { ComponentProps } from "react";
 import {
   TbArrowsDownUp,
@@ -13,7 +14,6 @@ import {
   TbMinusVertical,
   TbPlus,
   TbSettings,
-  TbSquareRounded,
   TbSquareRoundedFilled,
   TbStack,
   TbTable,
@@ -226,127 +226,154 @@ const TableFilters = () => {
   );
 };
 
+const TableHead = () => {
+  return (
+    <thead className="sticky top-0 z-[10] bg-white">
+      <tr className="w-full border-y">
+        <td className="border-r">
+          <div className="flex items-center gap-1 font-normal text-sm p-2">
+            <TbBuilding className="opacity-60" />
+            <span className="opacity-70">Company</span>
+          </div>
+        </td>
+        <td className="border-r">
+          <div className="flex items-center gap-1 font-normal text-sm p-2">
+            <TbStack className="opacity-60" />
+            <span className="opacity-70">Stage</span>
+          </div>
+        </td>
+        <td className="border-r">
+          <div className="flex items-center gap-1 font-normal text-sm p-2">
+            <TbCalendar className="opacity-60" />
+            <span className="opacity-70">Next Meeting</span>
+          </div>
+        </td>
+        <td className="">
+          <div className="flex items-center gap-1 font-normal text-sm p-2">
+            <TbBolt className="opacity-60" />
+            <span className="opacity-70">Connection Strength</span>
+          </div>
+        </td>
+      </tr>
+    </thead>
+  );
+};
+
+const TableBody = () => {
+  return (
+    <tbody className="">
+      {[...companies, ...companies].map((companyData, index) => {
+        return (
+          <tr className="border-b" key={companyData.website + index}>
+            <td className="border-r">
+              <div className="flex items-center gap-2 p-2">
+                <input
+                  type="checkbox"
+                  className="rounded-md border-none opacity-60"
+                />
+                <div className="flex items-center gap-1">
+                  <img
+                    alt="any"
+                    className="size-4 rounded-md"
+                    src={`https://logo.clearbit.com/${companyData.website}?format=png`}
+                  />
+                  {companyData.name}
+                </div>
+              </div>
+            </td>
+            <td className="border-r">
+              <div className="flex items-center gap-1 p-2">
+                <TbCircleFilled
+                  className={[
+                    "text-[8px]",
+                    stageToColorMap[companyData.stage],
+                  ].join(" ")}
+                />
+                <span>{companyData.stage}</span>
+              </div>
+            </td>
+            <td className="border-r">
+              <div className="p-2">
+                <span
+                  className={[
+                    "px-[6px] py-[2px] rounded-md text-xs border",
+                    getMeetingLabelColors(companyData.nextMeeting),
+                  ].join(" ")}
+                >
+                  {companyData.nextMeeting}
+                </span>
+              </div>
+            </td>
+            <td className="">
+              <div className="flex items-center gap-1 p-2">
+                {connectionStrengthToIconMap[companyData.connectionStrength]}
+                <span className="text-xs font-medium opacity-80">
+                  {companyData.connectionStrength}{" "}
+                  {companyData.contact ? "with " : ""}
+                  {companyData.contact}
+                </span>
+              </div>
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  );
+};
+
+const TableFooter = () => {
+  return (
+    <tfoot className="sticky bottom-0 bg-white">
+      <tr>
+        <td className="border-r">
+          <div className="text-right p-2">
+            1.064 <span className="opacity-60">count</span>
+          </div>
+        </td>
+        <td className="border-r">
+          <div className="text-right p-2 opacity-60">+ Add Calculation</div>
+        </td>
+        <td className="border-r">
+          <div className="text-right p-2 opacity-60">+ Add Calculation</div>
+        </td>
+        <td className="">
+          <div className="text-right p-2 opacity-60">+ Add Calculation</div>
+        </td>
+      </tr>
+    </tfoot>
+  );
+};
+
+const Table = () => {
+  return (
+    <table className="table-fixed min-w-[825px] border-collapse text-xs">
+      <TableHead />
+      <TableBody />
+      <TableFooter />
+    </table>
+  );
+};
+
 export const CompaniesTable = () => {
   return (
-    <div>
-      <TableFilters />
-      <div className="px-4">
-        <table className="relative h-full table-fixed w-full border-y border-collapse text-xs">
-          <thead className="sticky top-0 z-[10] bg-stone-50">
-            <tr className="w-full border-y">
-              <td className="border-r">
-                <div className="flex items-center gap-1 font-normal text-sm p-2">
-                  <TbBuilding className="opacity-60" />
-                  <span className="opacity-70">Company</span>
-                </div>
-              </td>
-              <td className="border-r">
-                <div className="flex items-center gap-1 font-normal text-sm p-2">
-                  <TbStack className="opacity-60" />
-                  <span className="opacity-70">Stage</span>
-                </div>
-              </td>
-              <td className="border-r">
-                <div className="flex items-center gap-1 font-normal text-sm p-2">
-                  <TbCalendar className="opacity-60" />
-                  <span className="opacity-70">Next Meeting</span>
-                </div>
-              </td>
-              <td className="">
-                <div className="flex items-center gap-1 font-normal text-sm p-2">
-                  <TbBolt className="opacity-60" />
-                  <span className="opacity-70">Connection Strength</span>
-                </div>
-              </td>
-            </tr>
-          </thead>
-          <tbody>
-            {companies.map((companyData) => {
-              return (
-                <tr className="border-b" key={companyData.website}>
-                  <td className="border-r">
-                    <div className="flex items-center gap-2 p-2">
-                      <input
-                        type="checkbox"
-                        className="rounded-md border-none opacity-60"
-                      />
-                      <div className="flex items-center gap-1">
-                        <img
-                          alt="any"
-                          className="size-4 rounded-md"
-                          src={`https://logo.clearbit.com/${companyData.website}?format=png`}
-                        />
-                        {companyData.name}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="border-r">
-                    <div className="flex items-center gap-1 p-2">
-                      <TbCircleFilled
-                        className={[
-                          "text-[8px]",
-                          stageToColorMap[companyData.stage],
-                        ].join(" ")}
-                      />
-                      <span>{companyData.stage}</span>
-                    </div>
-                  </td>
-                  <td className="border-r">
-                    <div className="p-2">
-                      <span
-                        className={[
-                          "px-[6px] py-[2px] rounded-md text-xs border",
-                          getMeetingLabelColors(companyData.nextMeeting),
-                        ].join(" ")}
-                      >
-                        {companyData.nextMeeting}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="">
-                    <div className="flex items-center gap-1 p-2">
-                      {
-                        connectionStrengthToIconMap[
-                          companyData.connectionStrength
-                        ]
-                      }
-                      <span className="text-xs font-medium opacity-80">
-                        {companyData.connectionStrength}{" "}
-                        {companyData.contact ? "with " : ""}
-                        {companyData.contact}
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-          <tfoot className="sticky top-0">
-            <tr>
-              <td className="border-r">
-                <div className="text-right p-2">
-                  1.064 <span className="opacity-60">count</span>
-                </div>
-              </td>
-              <td className="border-r">
-                <div className="text-right p-2 opacity-60">
-                  + Add Calculation
-                </div>
-              </td>
-              <td className="border-r">
-                <div className="text-right p-2 opacity-60">
-                  + Add Calculation
-                </div>
-              </td>
-              <td className="">
-                <div className="text-right p-2 opacity-60">
-                  + Add Calculation
-                </div>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+    <div className="h-full flex flex-col">
+      <div className="">
+        <TableFilters />
+      </div>
+      <div className="flex-1 relative">
+        <div className="absolute w-full h-full overflow-scroll px-4">
+          <Table />
+        </div>
       </div>
     </div>
   );
 };
+
+const X = (
+  <ScrollArea.Root className=" px-4 w-full h-full overflow-hidden">
+    <ScrollArea.Viewport className="h-full w-full border-r-[1px] border-stone-200">
+      <div className="h-[1000px] w-full bg-red-100"></div>
+    </ScrollArea.Viewport>
+    <ScrollArea.Scrollbar orientation="vertical" />
+  </ScrollArea.Root>
+);

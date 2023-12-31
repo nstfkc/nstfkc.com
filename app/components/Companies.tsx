@@ -7,15 +7,13 @@ import { CompaniesTable } from "./CompaniesTable";
 
 export const Companies = () => {
   return (
-    <ScrollArea.Root className="bg-stone-50 h-dvh overflow-hidden">
+    <div className="h-full flex flex-col">
       <PageHeader>
         <TbBuilding /> <span className="font-semibold">Companies</span>
       </PageHeader>
-
-      <ScrollArea.Viewport className="h-full w-full border-r-[1px] border-stone-200">
+      <div className="flex-1">
         <CompaniesTable />
-      </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar orientation="vertical" />
-    </ScrollArea.Root>
+      </div>
+    </div>
   );
 };
