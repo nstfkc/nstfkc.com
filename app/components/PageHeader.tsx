@@ -6,7 +6,7 @@ const people = ["ayla", "dave", "michael"];
 
 export const PageHeader = ({ children }: PropsWithChildren) => {
   return (
-    <div className="border-b-[1px] border-stone-200 p-2">
+    <div className="border-b-[1px] border-stone-200 p-2 px-4">
       <div className="flex items-center justify-between">
         <div className="flex gap-2 items-center">{children}</div>
         <div className="flex items-center gap-2">

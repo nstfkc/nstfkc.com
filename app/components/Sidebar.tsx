@@ -20,19 +20,19 @@ const SidebarQuickActions = () => {
   return (
     <div className="flex flex-col gap-3">
       <a href="#" className="flex items-center gap-2 px-2 text-sm font-medium">
-        <TbBell /> Notifications
+        <TbBell className="opacity-70" /> Notifications
       </a>
       <a href="#" className="flex items-center gap-2 px-2 text-sm font-medium">
-        <TbCheckbox /> Tasks
+        <TbCheckbox className="opacity-70" /> Tasks
       </a>
       <a href="#" className="flex items-center gap-2 px-2 text-sm font-medium">
-        <TbNotes /> Notes
+        <TbNotes className="opacity-70" /> Notes
       </a>
       <a href="#" className="flex items-center gap-2 px-2 text-sm font-medium">
-        <TbMail /> Emails
+        <TbMail className="opacity-70" /> Emails
       </a>
       <a href="#" className="flex items-center gap-2 px-2 text-sm font-medium">
-        <TbChartBar /> Reports
+        <TbChartBar className="opacity-70" /> Reports
       </a>
     </div>
   );
