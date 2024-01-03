@@ -346,7 +346,7 @@ const TableFooter = () => {
 
 const Table = () => {
   return (
-    <table className="table-fixed min-w-[825px] border-collapse text-xs">
+    <table className="table-fixed min-w-[825px] w-full border-collapse text-xs">
       <TableHead />
       <TableBody />
       <TableFooter />
@@ -368,12 +368,3 @@ export const CompaniesTable = () => {
     </div>
   );
 };
-
-const X = (
-  <ScrollArea.Root className=" px-4 w-full h-full overflow-hidden">
-    <ScrollArea.Viewport className="h-full w-full border-r-[1px] border-stone-200">
-      <div className="h-[1000px] w-full bg-red-100"></div>
-    </ScrollArea.Viewport>
-    <ScrollArea.Scrollbar orientation="vertical" />
-  </ScrollArea.Root>
-);

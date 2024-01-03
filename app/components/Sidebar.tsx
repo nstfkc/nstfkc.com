@@ -15,6 +15,9 @@ import { SidebarHeader } from "./SidebarHeader";
 import { SidebarSearch } from "./SidebarSearch";
 import { SidebarRecords } from "./SidebarRecords";
 import { SidebarLists } from "./SidebarLists";
+import { Sheet } from "./Sheet";
+import { useContext, useState } from "react";
+import { SidebarContext } from "./SidebarContext";
 
 const SidebarQuickActions = () => {
   return (
@@ -39,11 +42,17 @@ const SidebarQuickActions = () => {
 };
 
 export const Sidebar = () => {
+  const { setSidebarOpen, isSidebarOpen } = useContext(SidebarContext);
   return (
-    <ScrollArea.Root className="min-w-[240px] bg-stone-50 h-dvh overflow-hidden">
+    <ScrollArea.Root
+      className={[
+        "bg-stone-50 h-dvh overflow-hidden",
+        isSidebarOpen ? "min-w-[240px] " : "w-0",
+      ].join(" ")}
+    >
       <ScrollArea.Viewport className="h-full w-full border-r-[1px] border-stone-200">
         <div className="p-2 sticky top-0 border-b-[1px] bg-stone-50 border-stone-200 z-10">
-          <SidebarHeader />
+          <SidebarHeader toggleSheet={() => setSidebarOpen((s) => !s)} />
         </div>
         <div className="h-1" />
         <div className="p-2">
