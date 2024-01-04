@@ -42,38 +42,49 @@ const SidebarQuickActions = () => {
 };
 
 export const Sidebar = () => {
-  const { setSidebarOpen, isSidebarOpen } = useContext(SidebarContext);
+  const {
+    setSidebarOpen,
+    isSidebarOpen,
+    isSidebarCollapsed,
+    setSidebarCollapsed,
+  } = useContext(SidebarContext);
+
   return (
-    <ScrollArea.Root
-      className={[
-        "bg-stone-50 h-dvh overflow-hidden",
-        isSidebarOpen ? "min-w-[240px] " : "w-0",
-      ].join(" ")}
-    >
-      <ScrollArea.Viewport className="h-full w-full border-r-[1px] border-stone-200">
-        <div className="p-2 sticky top-0 border-b-[1px] bg-stone-50 border-stone-200 z-10">
-          <SidebarHeader toggleSheet={() => setSidebarOpen((s) => !s)} />
-        </div>
-        <div className="h-1" />
-        <div className="p-2">
-          <SidebarSearch />
-        </div>
-        <div className="h-2" />
-        <div className="p-2">
-          <SidebarQuickActions />
-        </div>
-        <div className="h-4" />
-        <Accordion.Root type="multiple" defaultValue={["lists", "records"]}>
+    <Sheet open={isSidebarOpen} onOpenChange={(s) => setSidebarOpen(s)}>
+      <ScrollArea.Root
+        className={[
+          "bg-stone-50 h-dvh overflow-hidden",
+          isSidebarCollapsed ? "w-0" : "w-full",
+        ].join(" ")}
+      >
+        <ScrollArea.Viewport className="h-full w-full border-r-[1px] border-stone-200">
+          <div className="p-2 sticky top-0 border-b-[1px] bg-stone-50 border-stone-200 z-10">
+            <SidebarHeader
+              collapseSidebar={() => setSidebarCollapsed((s) => !s)}
+              toggleSidebar={() => setSidebarOpen((s) => !s)}
+            />
+          </div>
+          <div className="h-1" />
           <div className="p-2">
-            <SidebarRecords />
+            <SidebarSearch />
+          </div>
+          <div className="h-2" />
+          <div className="p-2">
+            <SidebarQuickActions />
           </div>
           <div className="h-4" />
-          <div className="p-2">
-            <SidebarLists />
-          </div>
-        </Accordion.Root>
-      </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar orientation="vertical" />
-    </ScrollArea.Root>
+          <Accordion.Root type="multiple" defaultValue={["lists", "records"]}>
+            <div className="p-2">
+              <SidebarRecords />
+            </div>
+            <div className="h-4" />
+            <div className="p-2">
+              <SidebarLists />
+            </div>
+          </Accordion.Root>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar orientation="vertical" />
+      </ScrollArea.Root>
+    </Sheet>
   );
 };

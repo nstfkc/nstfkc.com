@@ -16,8 +16,8 @@ export const Sheet = ({
       <div className="lg:hidden">
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
           <Dialog.Portal>
-            <Dialog.Overlay className="bg-black/30 data-[state=open]:animate-overlayShow fixed inset-0" />
-            <Dialog.Content className="data-[state=open]:animate-slideRight fixed top-0 h-[100vh]">
+            <Dialog.Overlay className="bg-black/30 data-[state=open]:animate-overlayShow fixed inset-0 z-[1000]" />
+            <Dialog.Content className="data-[state=open]:animate-slideRight data-[state=closed]:animate-slideLeft fixed top-0 h-[100dvh] z-[1000]">
               {children}
               <Dialog.Close asChild>
                 <button

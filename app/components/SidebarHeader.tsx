@@ -4,7 +4,7 @@ import {
   TbLayoutSidebarLeftCollapse,
 } from "react-icons/tb";
 
-export const SidebarHeader = ({ toggleSheet }) => {
+export const SidebarHeader = ({ toggleSidebar, collapseSidebar }) => {
   return (
     <div className="flex justify-between items-center px-2">
       <div className="flex items-center gap-2">
@@ -17,8 +17,14 @@ export const SidebarHeader = ({ toggleSheet }) => {
         </button>
       </div>
       <button
-        onClick={toggleSheet}
-        className="opacity-60 hover:opacity-100 transition"
+        onClick={toggleSidebar}
+        className="opacity-60 hover:opacity-100 transition md:hidden"
+      >
+        <TbLayoutSidebarLeftCollapse />
+      </button>
+      <button
+        onClick={collapseSidebar}
+        className="opacity-60 hover:opacity-100 transition hidden md:block"
       >
         <TbLayoutSidebarLeftCollapse />
       </button>
