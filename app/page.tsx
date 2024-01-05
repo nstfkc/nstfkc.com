@@ -1,5 +1,11 @@
-import { Companies } from "./components/Companies";
+import Link from "next/link";
 
-export default function Home() {
-  return <Companies />;
-}
+const Home = () => {
+  return (
+    <div>
+      <Link href="/attio">Attio CRM</Link>
+    </div>
+  );
+};
+
+export default Home;
