@@ -1,12 +1,12 @@
 import { Noto_Sans } from "next/font/google";
 import Link from "next/link";
-import { TbArrowDown, TbCalendar } from "react-icons/tb";
+import { TbArrowDown, TbCalendar, TbMinusVertical } from "react-icons/tb";
 
 const notoSans = Noto_Sans({ subsets: ["latin"] });
 
 const Page = () => {
   return (
-    <main className={`${notoSans.className} text-stone-600`}>
+    <main className={`${notoSans.className} text-stone-700`}>
       <div className="relative w-screen h-screen bg-stone-100/50 ">
         <div className="absolute w-full h-full z-[1] backdrop-blur-xl"></div>
         <div className="absolute w-full h-full z-[-1]">
@@ -22,10 +22,10 @@ const Page = () => {
                   rawmilk & honey
                 </div>
               </Link>
-              <nav className="flex items-center gap-8 text-sm">
-                <Link href="/">home</Link>
-                <Link href="/#works">our work</Link>
-                <Link href="/#testimonials">testimonials</Link>
+              <nav className="flex items-center gap-8">
+                <Link href="/#works">Our Work</Link>
+                <Link href="/#testimonials">Testimonials</Link>
+                <Link href="/#pricing">Pricing</Link>
                 <Link
                   href="/reservation"
                   className="bg-gradient-to-tr from-orange-700/50 to-orange-900/60 rounded-lg text-white shadow-md py-2 px-4 font-bold tracking-wide"
@@ -34,10 +34,10 @@ const Page = () => {
                 </Link>
               </nav>
             </header>
-            <div className="flex-1 flex flex-col gap-12 justify-end p-4 px-8">
+            <div className="flex-1 flex flex-col gap-16 justify-end p-4 px-8">
               <div className="flex flex-col gap-2">
                 <div className="px-1 opacity-75">
-                  Design and development partner for your startup
+                  Design and development partner for your startup 🤝
                 </div>
                 <div className="text-4xl font-bold md:max-w-xl">
                   Cut your design and development costs by 50%
@@ -49,41 +49,38 @@ const Page = () => {
                   and you enjoy growing your startup
                 </div>
               </div>
-              <div className="flex gap-12 py-4 opacity-50">
+              <div className="flex gap-12 py-4">
                 <div>
-                  <div className="font-bold text-lg">Cancel anytime</div>
+                  <div className="font-bold text-lg">🙅‍♀️ Cancel anytime</div>
                   <div className="font-light">No questions asked</div>
                 </div>
                 <div>
-                  <div className="font-bold text-lg">Next day turnover</div>
+                  <div className="font-bold text-lg">👩‍💻 Next day turnover</div>
                   <div className="font-light">
                     We immediately start working for you
                   </div>
                 </div>
                 <div>
-                  <div className="font-bold text-lg">Unlimited request</div>
+                  <div className="font-bold text-lg">🫡 Unlimited request</div>
                   <div className="font-light">High quality, low cost</div>
                 </div>
               </div>
               <div className="flex justify-between items-start">
                 <div className="flex items-start gap-8">
-                  <a className="flex flex-col items-center">
+                  <a className="flex flex-col gap-4 items-center">
                     <div className="flex items-center gap-2 bg-gradient-to-tr from-orange-700/50 to-orange-900/60 rounded-lg text-white p-4 shadow-md border-stone-600/10 font-semibold tracking-wide">
                       <TbCalendar />
                       <span>Book a call</span>
+                      <TbMinusVertical />
+                      <div className="">
+                        <span className="">2</span> <span>seats left</span>
+                      </div>
                     </div>
-                    <div className="text-sm opacity-50">2 seats left</div>
                   </a>
-                  <Link
-                    href="/#pricing"
-                    className="p-4 font-medium bg-stone-100 rounded-lg font-semibold tracking-wide"
-                  >
-                    <span className="opacity-75">View pricing</span>
-                  </Link>
-                </div>
-                <div className="flex items-center gap-4 p-4">
-                  <TbArrowDown />
-                  <span>See our work</span>
+                  <div className="flex items-center gap-4 p-4">
+                    <TbArrowDown />
+                    <span>See our work</span>
+                  </div>
                 </div>
               </div>
               <div></div>
