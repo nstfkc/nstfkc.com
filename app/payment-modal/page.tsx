@@ -61,9 +61,9 @@ const CircleButton = ({
   return (
     <button
       {...buttonProps}
-      className="size-10 rounded-full border border-neutral-950 bg-neutral-600/50 p-[1px]"
+      className="group size-10 rounded-full border border-neutral-950 bg-neutral-600/50 p-[1px] active:bg-neutral-800"
     >
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-neutral-800 to-neutral-700/50 rounded-full">
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-neutral-800 to-neutral-700/50 group-active:bg-neutral-800 rounded-full">
         {children}
       </div>
     </button>
