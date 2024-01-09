@@ -68,7 +68,7 @@ const TwitterRedesign = () => {
         <Scroll>
           {tweets.map((tweet) => {
             return (
-              <div>
+              <div key={tweet.id}>
                 <div key={tweet.id} className="flex gap-4 p-4 w-full">
                   <div className="min-w-[32px]">
                     <img
