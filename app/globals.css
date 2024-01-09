@@ -2,3 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --dot-color: #444cf7;
+  --dot-size: 16px;
+}
+
+.polka {
+  opacity: 0.4;
+  background-image:  radial-gradient(var(--dot-color) 0.5px, transparent 0.5px), radial-gradient(var(--dot-color) 0.5px, transparent 0.5px);
+  background-size: calc(var(--dot-size) * 2) calc(var(--dot-size) * 2);
+  background-position: 0 0, var(--dot-size) var(--dot-size);
+}
