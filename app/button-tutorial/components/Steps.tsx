@@ -74,8 +74,23 @@ const StepFour = () => {
   );
 };
 
+const StepZero = () => {
+  return (
+    <div className="w-[220px] flex flex-col">
+      <button className="relative overflow-hidden rounded-[12px] shadow-[0px_0px_0px_3px_rgba(0,0,0,0.4)] bg-gradient-to-b from-white/10 to-transparent p-[1px] active:from-white/5 outline-none">
+        <div className="w-[40%] h-[100px] absolute rotate-[15deg] opacity-50 left-[-8%] top-[-50%] bg-gradient-to-r from-transparent via-green-400/20 to-transparent"></div>
+        <div className="flex items-center gap-2 px-4 py-2 bg-zinc-800/90 rounded-[11px]">
+          <PiChartBarHorizontalDuotone className="-rotate-90 text-green-600/50 text-xl" />
+          <span>Analytics</span>
+        </div>
+      </button>
+      <div className="h-[60px] py-4 text-white/50 text-sm"></div>
+    </div>
+  );
+};
+
 export const Steps = () => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const nextStep = () => {
     setStep((prev) => (prev === 4 ? 1 : prev + 1));
   };
@@ -90,7 +105,9 @@ export const Steps = () => {
 
   return (
     <div className="text-white/80">
-      {step === 1 ? (
+      {step === 0 ? (
+        <StepZero />
+      ) : step === 1 ? (
         <StepOne />
       ) : step === 2 ? (
         <StepTwo />
@@ -101,8 +118,8 @@ export const Steps = () => {
       ) : null}
 
       <div className="py-12 flex justify-between">
-        <button onClick={nextStep}>Next</button>
-        <span>{step}/4</span>
+        <button onClick={nextStep}>{step === 0 ? "Start" : "Next"}</button>
+        {step > 0 && <span>{step}/4</span>}
       </div>
     </div>
   );
