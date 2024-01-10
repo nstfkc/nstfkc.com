@@ -13,3 +13,27 @@
   background-size: calc(var(--dot-size) * 2) calc(var(--dot-size) * 2);
   background-position: 0 0, var(--dot-size) var(--dot-size);
 }
+
+@layer components {
+  .fbc {
+      @apply flex justify-between items-center;
+  }
+  .fcc {
+      @apply flex justify-center items-center;
+  }
+  .fsc {
+      @apply flex justify-start items-center;
+  }
+  .ffc {
+      @apply flex flex-col;
+  }
+  .fec {
+      @apply flex justify-end items-center;
+  }
+  .ffbc {
+      @apply flex flex-col items-center justify-between;
+  }
+  .ffcc {
+        @apply flex flex-col items-center justify-center;
+  }
+}
