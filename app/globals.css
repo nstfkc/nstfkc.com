@@ -37,3 +37,9 @@
         @apply flex flex-col items-center justify-center;
   }
 }
+
+.twitter-header-item {
+    @apply bg-gradient-to-br from-neutral-200/50 to-white;
+    box-shadow:  20px 20px 60px #bcbcbc,
+             -20px -20px 60px #ffffff;
+}

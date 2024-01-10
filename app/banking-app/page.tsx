@@ -6,7 +6,7 @@ import ayla from "./people/ayla.png";
 import { TbActivity, TbBell, TbBrandNetflix, TbDatabase } from "react-icons/tb";
 import Image from "next/image";
 
-const MobileSVG = () => {
+const Patterns = () => {
   const cx0 = 300;
   const cy0 = 200;
   return (
@@ -82,7 +82,7 @@ const Mobile = () => {
                 <div>
                   <div className="bg-gradient-to-r from-white/20 to-transparent rounded-lg px-4 py-6 relative overflow-hidden">
                     <div className="absolute right-0 top-[50%] opacity-50 translate-y-[-50%] w-2/3">
-                      <MobileSVG></MobileSVG>
+                      <Patterns></Patterns>
                     </div>
                     <div>
                       <div>Your balance</div>
