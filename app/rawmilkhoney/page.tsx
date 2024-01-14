@@ -28,7 +28,7 @@ const Page = () => {
                 <Link href="/#pricing">Pricing</Link>
                 <Link
                   href="/reservation"
-                  className="bg-gradient-to-tr from-orange-700/50 to-orange-900/60 rounded-lg text-white shadow-md py-2 px-4 font-bold tracking-wide"
+                  className="bg-gradient-to-tr from-neutral-900/80 to-orange-900/60 border border-neutral-900/20 rounded-lg text-white shadow-md py-2 px-4 font-bold tracking-wide"
                 >
                   Reserve Your Seat
                 </Link>
@@ -36,8 +36,10 @@ const Page = () => {
             </header>
             <div className="flex-1 flex flex-col gap-16 justify-end p-4 px-8">
               <div className="flex flex-col gap-2">
-                <div className="px-1 opacity-75">
-                  Design and development partner for your startup 🤝
+                <div className="">
+                  <span className="px-2 py-1 bg-neutral-900 text-white rounded-md">
+                    Design and development partner for your startup 🤝
+                  </span>
                 </div>
                 <div className="text-4xl font-bold md:max-w-xl">
                   Cut your design and development costs by 50%
@@ -46,34 +48,31 @@ const Page = () => {
                 <div></div>
                 <div className="md:max-w-2xl">
                   We design and develop your UI components for your requirements
-                  and you enjoy growing your startup
+                  and you focus on what makes your app unique
                 </div>
               </div>
-              <div className="flex gap-12 py-4">
-                <div>
-                  <div className="font-bold text-lg">🙅‍♀️ Cancel anytime</div>
-                  <div className="font-light">No questions asked</div>
-                </div>
-                <div>
-                  <div className="font-bold text-lg">👩‍💻 Next day turnover</div>
-                  <div className="font-light">
-                    We immediately start working for you
-                  </div>
-                </div>
-                <div>
-                  <div className="font-bold text-lg">🫡 Unlimited request</div>
-                  <div className="font-light">High quality, low cost</div>
-                </div>
-              </div>
+
               <div className="flex justify-between items-start">
-                <div className="flex items-start gap-8">
-                  <a className="flex flex-col gap-4 items-center">
-                    <div className="flex items-center gap-2 bg-gradient-to-tr from-orange-700/50 to-orange-900/60 rounded-lg text-white p-4 shadow-md border-stone-600/10 font-semibold tracking-wide">
-                      <TbCalendar />
-                      <span>Book a call</span>
-                      <TbMinusVertical />
-                      <div className="">
-                        <span className="">2</span> <span>seats left</span>
+                <div className="flex items-center gap-8">
+                  <a className="relative flex flex-col items-center p-1 bg-white/30 shadow-[0_0_12px_rgba(120,0,0,0.6)] rounded-xl overflow-hidden">
+                    <div className="absolute left-[-70%] top-[-100%] w-[240%] h-[400%] rounded-xl z-[-1] animate-[spin_2s_linear_infinite] bg-red-100 bg-gradient-to-bl from-indigo-950/80 to-orange-700"></div>
+                    <div className="flex items-center gap-8 rounded-lg text-white p-6 border-stone-600/10 tracking-wide bg-gradient-to-tr from-neutral-900/80 to-orange-900/60">
+                      <div>
+                        <div className="flex items-center gap-1">
+                          <TbCalendar />
+                          <span className="text-semibold text-xl">
+                            Book a call
+                          </span>
+                        </div>
+                        <span className="bg-white/20 rounded-sm text-xs px-2">
+                          2 seats left
+                        </span>
+                      </div>
+                      <div className="w-[1px] bg-white/30 h-[44px]"></div>
+                      <div className="flex flex-col text-xs gap-2">
+                        <div className="">🙅‍♀️ Cancel anytime</div>
+                        <div className="">👩‍💻 Next day turnover</div>
+                        <div className="">🫡 Unlimited request</div>
                       </div>
                     </div>
                   </a>
