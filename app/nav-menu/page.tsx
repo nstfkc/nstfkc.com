@@ -30,7 +30,7 @@ const MenuButton = () => {
   return (
     <Button className="h-[48px] group">
       <div className="flex items-center gap-2 h-full flex-1 px-4 group-data-[state=open]:bg-white/5">
-        <div className="font-sans bg-green-600/20 px-3 rounded-md border border-green-600 text-green-600">
+        <div className="font-sans bg-yellow-400/20 px-3 rounded-md border border-yellow-400 text-yellow-400">
           Draft
         </div>
         <div>Starting a busin ...</div>
