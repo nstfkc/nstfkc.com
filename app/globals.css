@@ -43,3 +43,7 @@
     box-shadow:  20px 20px 60px #bcbcbc,
              -20px -20px 60px #ffffff;
 }
+
+.recess {
+  box-shadow:  0px -1px 0px 0px rgba(0,0,0,0.8), 0px 1px 0px 0px rgba(255,255,255,0.15);
+}
