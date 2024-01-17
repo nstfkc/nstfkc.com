@@ -28,8 +28,18 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        moveFromRight: {
+          from: { right: "%100" },
+          to: { right: "0%" },
+        },
+        moveToRight: {
+          from: { right: "0%" },
+          to: { right: "100%" },
+        },
       },
       animation: {
+        moveFromRight: "moveFromRight 1000ms linear alternate infinite",
+        moveToRight: "moveToRight 1000ms linear alternate infinite",
         slideDown: "slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1)",
         slideUp: "slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1)",
         overlayShow: "overlayShow 250ms cubic-bezier(0.16, 1, 0.3, 1)",

@@ -46,14 +46,20 @@ const ConnectModal = () => {
               </div>
             </div>
             <div className="flex flex-col gap-2 py-10">
-              <div className="w-8 h-[2px] bg-gradient-to-r from-blue-300 via-blue-100 to-blue-50">
-                <div className="w-[4px] h-[4px] blur-sm bg-blue-500"></div>
+              <div className="w-8 h-[2px] relative">
+                <div className="absolute w-full h-[2px] bg-gradient-to-r from-blue-300 via-blue-100 to-blue-50 animate-pulse"></div>
+                <div className="absolute w-full h-[2px] bg-gradient-to-l from-blue-300 via-blue-100 to-blue-50 animate-pulse"></div>
+                <div className="w-[4px] h-[4px] blur-sm bg-blue-500 absolute right-[0%] animate-moveToRight"></div>
               </div>
-              <div className="w-8 h-[2px] bg-gradient-to-l flex justify-end from-blue-300 via-blue-100 to-blue-50">
-                <div className="w-[4px] h-[4px] blur-sm bg-blue-500"></div>
+              <div className="w-8 h-[2px] relative">
+                <div className="absolute w-full h-[2px] bg-gradient-to-r from-blue-300 via-blue-100 to-blue-50 animate-pulse"></div>
+                <div className="absolute w-full h-[2px] bg-gradient-to-l from-blue-300 via-blue-100 to-blue-50 animate-pulse"></div>
+                <div className="w-[4px] h-[4px] blur-sm bg-blue-500 absolute right-[100%] animate-moveFromRight"></div>
               </div>
-              <div className="w-8 h-[2px] bg-gradient-to-r from-blue-300 via-blue-100 to-blue-50">
-                <div className="w-[4px] h-[4px] blur-sm bg-blue-500"></div>
+              <div className="w-8 h-[2px] relative">
+                <div className="absolute w-full h-[2px] bg-gradient-to-r from-blue-300 via-blue-100 to-blue-50 animate-pulse"></div>
+                <div className="absolute w-full h-[2px] bg-gradient-to-l from-blue-300 via-blue-100 to-blue-50 animate-pulse"></div>
+                <div className="w-[4px] h-[4px] blur-sm bg-blue-500 absolute right-[0%] animate-moveToRight"></div>
               </div>
             </div>
             <div className="size-12 bg-stone-100 rounded-[12px] p-[3px]">
