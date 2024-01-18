@@ -20,15 +20,15 @@ const BgNoise = () => {
 const TwitterFollowers = () => {
   return (
     <main className={GeistMono.className}>
-      <div className="w-screen h-screen flex justify-center items-center relative">
-        <div className="absolute w-full h-full bg-neutral-900 z-0">
+      <div className="relative flex h-screen w-screen items-center justify-center">
+        <div className="absolute z-0 h-full w-full bg-gradient-to-t from-indigo-950 to-orange-400">
           <BgNoise />
         </div>
-        <div className="relative z-1">
-          <div className="bg-neutral-900 px-16 py-8 rounded-xl recess">
-            <div className="text-6xl text-white font-bold flex gap-4">
+        <div className="z-1 relative">
+          <div className="recess rounded-xl bg-black/50 px-16 py-8">
+            <div className="flex gap-4 text-6xl font-bold text-white">
               <LuUsers />
-              <div>700</div>
+              <div>730</div>
             </div>
           </div>
         </div>
