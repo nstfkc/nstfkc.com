@@ -18,6 +18,8 @@ const Home = () => {
                 <a
                   className="flex items-center gap-1 opacity-75 text-sm px-2 py-1 rounded-md bg-black/5"
                   href={`https://github.com/nstfkc/ui-ux/tree/main/app${item.url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Code <LuCode2 />
                 </a>
@@ -28,6 +30,17 @@ const Home = () => {
                   Preview <LuArrowUpRightSquare />
                 </Link>
               </div>
+            </div>
+            <div className="text-sm">
+              Design:{" "}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href={item.designer.url}
+                className="font-semibold underline"
+              >
+                {item.designer.label}
+              </a>
             </div>
             <div className="flex flex-col gap-2">
               {item.images.map((image) => {
