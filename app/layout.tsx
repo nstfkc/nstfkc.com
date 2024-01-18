@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import { GeistMono } from "geist/font/mono";
 import type { Metadata } from "next";
 import "./globals.css";
@@ -14,7 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${GeistMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
