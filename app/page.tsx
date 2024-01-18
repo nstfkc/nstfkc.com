@@ -10,7 +10,7 @@ const Home = () => {
         {work.map((item) => (
           <div
             key={item.url}
-            className="flex flex-col gap-2 p-4 bg-white/50 rounded-[14px]"
+            className="flex flex-col gap-2 p-4 bg-white/50 md:rounded-[14px]"
           >
             <div className="flex justify-between items-center">
               <div className="text-lg font-semibold">{item.label}</div>
