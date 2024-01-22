@@ -136,6 +136,7 @@ const PlayButton = ({ player }: { player: MusicPlayer }) => {
     </div>
   );
 };
+
 const Light = ({ player }: { player: MusicPlayer }) => {
   const { playing } = useMusicPlayerState(player);
   const timer = useRef<NodeJS.Timeout>();
