@@ -21,14 +21,14 @@ const TwitterFollowers = () => {
   return (
     <main className={GeistMono.className}>
       <div className="relative flex h-screen w-screen items-center justify-center">
-        <div className="absolute z-0 h-full w-full bg-gradient-to-t from-indigo-950 to-orange-400">
+        <div className="absolute z-0 h-full w-full bg-gradient-to-t from-slate-950 to-slate-900">
           <BgNoise />
         </div>
         <div className="z-1 relative">
           <div className="recess rounded-xl bg-black/50 px-16 py-8">
             <div className="flex gap-4 text-6xl font-bold text-white">
               <LuUsers />
-              <div>730</div>
+              <div>865</div>
             </div>
           </div>
         </div>
