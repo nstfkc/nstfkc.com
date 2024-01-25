@@ -1,5 +1,20 @@
 import { LuActivity, LuShare2, LuUpload } from "react-icons/lu";
-import { BgNoise } from "@/components/BgNoise";
+
+const BgNoise = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <filter id="n" x="0" y="0">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="1.5"
+          stitchTiles="stitch"
+        />
+      </filter>
+
+      <rect width="100%" height="100%" filter="url(#n)" opacity="0.1" />
+    </svg>
+  );
+};
 
 const Glass = () => {
   return (
@@ -7,20 +22,22 @@ const Glass = () => {
       className={[
         "w-screen h-screen",
         "flex items-center justify-center",
-        "bg-gradient-to-tr from-gray-900 via-green-900 to-gray-800",
+        "bg-gradient-to-tr from-indigo-900 to-orange-900",
+        "relative",
       ].join(" ")}
     >
-      <div className="w-[400px] h-[400px] rounded-[36px] overflow-hidden">
+      <div className="absolute w-full h-full inset-0">
+        <BgNoise />
+      </div>
+      <div className="w-[400px] h-[400px] rounded-[48px] overflow-hidden">
         <div
           className={[
-            "h-full bg-white/5 rounded-[32px] backgrop-blur-[10px]",
-            "shadow-[inset_0_0_2px_1px_rgba(255,255,255,0.1)]",
-            "p-6",
+            "h-full bg-white/5 rounded-[42px] backdrop-blur-[1px]",
+            "shadow-[inset_0_0_6px_2px_rgba(255,255,255,0.05)]",
+            "p-6 overflow-hidden relative",
+            "border border-white/5",
           ].join(" ")}
         >
-          <div>
-            <BgNoise />
-          </div>
           <div className="flex justify-end">
             <div>
               <button
