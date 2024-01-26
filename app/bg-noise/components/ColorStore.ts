@@ -1,6 +1,19 @@
 import { Subject } from "@/lib/Subject";
 import { useState, useSyncExternalStore } from "react";
 
+function generateRandomId(length: number = 6): string {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters.charAt(randomIndex);
+  }
+
+  return result;
+}
+
 function arrayDiff<T>(arr1: T[], arr2: T[]): T {
   for (const x of arr1) {
     if (!arr2.includes(x)) {
@@ -18,10 +31,12 @@ type State = {
   order: string[];
 };
 
+const id = generateRandomId();
+
 const defaultState: State = {
-  colorCodes: { "color-1": "#000000", "color-2": "#ffffff" },
-  colorStops: { "color-1": 0, "color-2": 100 },
-  order: ["color-1", "color-2"],
+  colorCodes: { [id]: "#000000" },
+  colorStops: { [id]: 0 },
+  order: [id],
 };
 
 export class ColorStore {
@@ -54,11 +69,6 @@ export class ColorStore {
     currentOrder[id1Index] = id2;
     currentOrder[id2Index] = id1;
 
-    const currentColors = this.colorCodes$.getValue();
-    // const id1Code = currentColors[id2];
-    // const id2Code = currentColors[id1];
-    this.colorCodes$.next({ ...currentColors });
-
     const colorStops = this.colorStops$.getValue();
 
     const id1Stop = colorStops[id2];
@@ -73,9 +83,12 @@ export class ColorStore {
   };
 
   addColor = (code: string) => {
-    const nextId = `color-${
-      Object.keys(this.colorCodes$.getValue()).length + 1
-    }`;
+    let nextId = generateRandomId();
+
+    for (const id of this.order$.getValue()) {
+      if (id === nextId) {
+      }
+    }
 
     const [biggestColorStopKey, biggestColorStopValue] = Object.entries(
       this.colorStops$.getValue()
@@ -105,7 +118,11 @@ export class ColorStore {
 
   removeColor = (id: string) => {
     const { [id]: _, ...nextColorCodes } = this.colorCodes$.getValue();
+    const { [id]: __, ...nextColorStops } = this.colorStops$.getValue();
+    const currentOrder = this.order$.getValue();
     this.colorCodes$.next(nextColorCodes);
+    this.colorStops$.next(nextColorStops);
+    this.order$.next(currentOrder.filter((orderId) => orderId !== id));
   };
 
   updateColorStops = (stop: number[]) => {

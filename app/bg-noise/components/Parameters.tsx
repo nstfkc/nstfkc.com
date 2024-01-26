@@ -26,6 +26,7 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { ColorStore, useColorStore, useColorStoreState } from "./ColorStore";
+import { LuX } from "react-icons/lu";
 
 const RangeSlider = (props: {
   colorStore: ColorStore;
@@ -57,16 +58,11 @@ const RangeSlider = (props: {
         <Slider.Range className="absolute h-full" />
       </Slider.Track>
       {order.map((id, idx) => (
-        <Slider.Thumb key={`thumb-${id}-${idx}`} asChild>
-          <span style={{ zIndex: 100 - idx * 10 }}>
-            <span
-              style={{ background: colorCodes[id] }}
-              className="w-4 border h-8 border-2 border-white/20 rounded-full block"
-            >
-              {id.replace("color-", "")}
-            </span>
-          </span>
-        </Slider.Thumb>
+        <Slider.Thumb
+          key={`thumb-${id}-${idx}`}
+          style={{ background: colorCodes[id] }}
+          className="group relative w-4 border h-8 border-2 border-white/20 rounded-full block outline-none"
+        ></Slider.Thumb>
       ))}
     </Slider.Root>
   );
@@ -96,10 +92,12 @@ const Container = (props: ComponentProps<"div">) => {
 export function SortableItem(props: {
   color: string;
   onChange: (color: string) => void;
+  handleRemoveColor: () => void;
+  showRemoveButton?: boolean;
   id: string;
 }) {
-  const { color, onChange } = props;
-  const { attributes, listeners, setNodeRef, transform, transition } =
+  const { color, onChange, handleRemoveColor, showRemoveButton = true } = props;
+  const { attributes, listeners, setNodeRef, transform, transition, active } =
     useSortable({ id: props.id });
 
   const style = {
@@ -108,21 +106,38 @@ export function SortableItem(props: {
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      aria-describedby={`item-${props.id}`}
-    >
-      <div style={{ background: color }}>
-        <input
-          className="opacity-0 bg-transparent border border-white/20 rounded-md px-1 py-[2px] h-12"
-          type="color"
-          onChange={(e) => onChange(e.target.value)}
-          value={color}
-        />
+    <div className="relative group">
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        aria-describedby={`item-${props.id}`}
+      >
+        <div
+          className="group"
+          style={{ background: color, position: "relative" }}
+        >
+          <input
+            className="opacity-0 bg-transparent border border-white/20 rounded-md px-1 py-[2px] h-12"
+            type="color"
+            onChange={(e) => onChange(e.target.value)}
+            value={color}
+          />
+        </div>
       </div>
+      {!active && showRemoveButton && (
+        <button
+          onClick={(event) => {
+            event.preventDefault();
+            console.log("remove");
+            handleRemoveColor();
+          }}
+          className="absolute invisible group-hover:visible right-[-6px] top-[-6px] z-[100] rounded-full p-[1px] bg-white/80 shadow-sm"
+        >
+          <LuX />
+        </button>
+      )}
     </div>
   );
 }
@@ -150,12 +165,16 @@ function Colors(props: { colorStore: ColorStore }) {
           {order.map((item) => (
             <SortableItem
               id={item}
+              showRemoveButton={order.length > 1}
+              handleRemoveColor={() => {
+                colorStore.removeColor(item);
+              }}
               onChange={(color) => {
                 colorStore.updateColorCode(item, color);
               }}
               key={item}
               color={colorCodes[item]}
-            />
+            ></SortableItem>
           ))}
         </SortableContext>
       </DndContext>
@@ -179,10 +198,13 @@ export const NoiseParameters = () => {
   const colorStops = useColorStoreState(colorStore, "colorStops");
   const order = useColorStoreState(colorStore, "order");
 
-  const bg = (deg: number) =>
-    `linear-gradient(${deg}deg, ${order
-      .map((id) => `${colorCodes[id]} ${colorStops[id]}%`)
-      .join(", ")})`;
+  let bg = (_deg: number) => colorCodes[order[0]];
+  if (order.length > 1) {
+    bg = (deg: number) =>
+      `linear-gradient(${deg}deg, ${order
+        .map((id) => `${colorCodes[id]} ${colorStops[id]}%`)
+        .join(", ")})`;
+  }
 
   return (
     <div
@@ -203,23 +225,30 @@ export const NoiseParameters = () => {
                 <Colors colorStore={colorStore} />
                 <button
                   onClick={() => {
-                    colorStore.addColor("#333");
+                    colorStore.addColor("#333021");
                   }}
                 >
                   Add
                 </button>
               </div>
-              <div>
-                <RangeSlider colorStore={colorStore} trackBackground={bg(90)} />
-              </div>
-              <div>
-                <RadiiSlider
-                  value={[radii]}
-                  onValueChange={([radii]) => setRadii(radii)}
-                  min={0}
-                  max={360}
-                />
-              </div>
+              {order.length > 1 && (
+                <div>
+                  <RangeSlider
+                    colorStore={colorStore}
+                    trackBackground={bg(90)}
+                  />
+                </div>
+              )}
+              {order.length > 1 && (
+                <div>
+                  <RadiiSlider
+                    value={[radii]}
+                    onValueChange={([radii]) => setRadii(radii)}
+                    min={0}
+                    max={360}
+                  />
+                </div>
+              )}
             </div>
           </Container>
         </div>
