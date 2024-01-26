@@ -92,15 +92,12 @@ export class ColorStore {
 
     const [biggestColorStopKey, biggestColorStopValue] = Object.entries(
       this.colorStops$.getValue()
-    ).reduce(
-      (acc, [key, value]) => {
-        if (value > acc?.[1]) {
-          return [key, value];
-        }
-        return acc;
-      },
-      ["", 0]
-    );
+    ).reduce((acc, [key, value]) => {
+      if (value > acc?.[1]) {
+        return [key, value];
+      }
+      return acc;
+    }, Object.entries(this.colorStops$.getValue())[0]);
 
     let updatedBiggestColorStopValue = biggestColorStopValue;
     if (biggestColorStopValue > 95) {
@@ -126,15 +123,15 @@ export class ColorStore {
   };
 
   updateColorStops = (stop: number[]) => {
-    const currentValue = this.colorStops$.getValue();
+    const currentColorStops = this.colorStops$.getValue();
     const currentOrder = this.order$.getValue();
 
-    const currentStops = currentOrder.map((id) => currentValue[id]);
+    const currentStops = currentOrder.map((id) => currentColorStops[id]);
 
     let updatedKey = "";
     const diff = arrayDiff(stop, currentStops);
 
-    for (const [key, value] of Object.entries(currentValue)) {
+    for (const [key, value] of Object.entries(currentColorStops)) {
       if (!stop.includes(value)) {
         updatedKey = key;
         break;
@@ -147,7 +144,7 @@ export class ColorStore {
       this.colorStops$.getValue()[currentOrder[orderIndex + 1]] ?? 100;
 
     if (diff >= min && diff <= max) {
-      this.colorStops$.next({ ...currentValue, [updatedKey]: diff });
+      this.colorStops$.next({ ...currentColorStops, [updatedKey]: diff });
     }
   };
 

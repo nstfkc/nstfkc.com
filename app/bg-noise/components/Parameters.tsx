@@ -1,13 +1,7 @@
 "use client";
 
 import { BgNoise } from "@/components/BgNoise";
-import {
-  ComponentProps,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import { ComponentProps, useEffect, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import {
   DndContext,
@@ -20,7 +14,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import {
   useSortable,
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy,
@@ -37,8 +30,6 @@ const RangeSlider = (props: {
   const colorCodes = useColorStoreState(colorStore, "colorCodes");
   const order = useColorStoreState(colorStore, "order");
 
-  console.log(colorCodes);
-  console.log(order);
   return (
     <Slider.Root
       className="relative flex items-center select-none touch-none h-5"
@@ -130,7 +121,6 @@ export function SortableItem(props: {
         <button
           onClick={(event) => {
             event.preventDefault();
-            console.log("remove");
             handleRemoveColor();
           }}
           className="absolute invisible group-hover:visible right-[-6px] top-[-6px] z-[100] rounded-full p-[1px] bg-white/80 shadow-sm"
@@ -142,8 +132,11 @@ export function SortableItem(props: {
   );
 }
 
-function Colors(props: { colorStore: ColorStore }) {
-  const { colorStore } = props;
+function Colors(props: {
+  colorStore: ColorStore;
+  handleAddColor: VoidFunction;
+}) {
+  const { colorStore, handleAddColor } = props;
   const order = useColorStoreState(props.colorStore, "order");
   const colorCodes = useColorStoreState(props.colorStore, "colorCodes");
 
@@ -178,6 +171,7 @@ function Colors(props: { colorStore: ColorStore }) {
           ))}
         </SortableContext>
       </DndContext>
+      <button onClick={handleAddColor}>Add</button>
     </div>
   );
 
@@ -192,6 +186,7 @@ function Colors(props: { colorStore: ColorStore }) {
 
 export const NoiseParameters = () => {
   const [radii, setRadii] = useState(145);
+  const [ready, setReady] = useState(false);
 
   const colorStore = useColorStore();
   const colorCodes = useColorStoreState(colorStore, "colorCodes");
@@ -204,6 +199,16 @@ export const NoiseParameters = () => {
       `linear-gradient(${deg}deg, ${order
         .map((id) => `${colorCodes[id]} ${colorStops[id]}%`)
         .join(", ")})`;
+  }
+
+  useEffect(() => {
+    if (!ready) {
+      setReady(true);
+    }
+  }, []);
+
+  if (!ready) {
+    return null;
   }
 
   return (
@@ -222,17 +227,14 @@ export const NoiseParameters = () => {
             <span>Background</span>
             <div className="flex flex-col gap-4">
               <div>
-                <Colors colorStore={colorStore} />
-                <button
-                  onClick={() => {
-                    colorStore.addColor("#333021");
-                  }}
-                >
-                  Add
-                </button>
+                <Colors
+                  colorStore={colorStore}
+                  handleAddColor={() => colorStore.addColor("#333021")}
+                />
               </div>
               {order.length > 1 && (
                 <div>
+                  <div>Color stops</div>
                   <RangeSlider
                     colorStore={colorStore}
                     trackBackground={bg(90)}
@@ -241,6 +243,7 @@ export const NoiseParameters = () => {
               )}
               {order.length > 1 && (
                 <div>
+                  <div>Angle</div>
                   <RadiiSlider
                     value={[radii]}
                     onValueChange={([radii]) => setRadii(radii)}
