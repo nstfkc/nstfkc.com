@@ -14,8 +14,6 @@ import {
   KeyboardSensor,
   PointerSensor,
   closestCenter,
-  useDraggable,
-  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -27,25 +25,28 @@ import {
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { ColorStore, useColorStore, useColorStoreState } from "./ColorStore";
 
 const RangeSlider = (props: {
-  value: number[];
-  onChange: (fn: (value: number[]) => number[]) => void;
+  colorStore: ColorStore;
   trackBackground?: string;
-  colors: string[];
 }) => {
-  const { onChange, value, trackBackground, colors } = props;
+  const { colorStore, trackBackground } = props;
+  const colorStops = useColorStoreState(colorStore, "colorStops");
+  const colorCodes = useColorStoreState(colorStore, "colorCodes");
+
   return (
     <Slider.Root
       className="relative flex items-center select-none touch-none h-5"
-      value={value}
-      onValueChange={(nextValue) =>
-        onChange((prevValue) => {
-          return nextValue;
-        })
-      }
+      value={Object.values(colorStops)}
+      onValueChange={(nextValue) => {
+        console.log(nextValue);
+        colorStore.updateColorStops(nextValue);
+      }}
       min={0}
       max={100}
+      step={1}
+      minStepsBetweenThumbs={5}
     >
       <Slider.Track
         style={{ background: trackBackground }}
@@ -54,7 +55,7 @@ const RangeSlider = (props: {
         <Slider.Range className="absolute h-full" />
       </Slider.Track>
 
-      {colors.map((color, i) => (
+      {Object.values(colorCodes).map((color, i) => (
         <Slider.Thumb
           key={color + i}
           style={{ background: color }}
@@ -86,41 +87,10 @@ const Container = (props: ComponentProps<"div">) => {
   );
 };
 
-const Color = (props: {
-  index: number;
-  color: string;
-  onChange: (color: string) => void;
-}) => {
-  const { color, onChange, index } = props;
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: `draggable-${index}`,
-    });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-  return (
-    <div
-      ref={setNodeRef}
-      style={{ background: color, ...style }}
-      {...listeners}
-      {...attributes}
-    >
-      <input
-        className="opacity-0 bg-transparent border border-white/20 rounded-md px-1 py-[2px] h-12"
-        type="color"
-        onChange={(e) => onChange(e.target.value)}
-        value={color}
-      />
-    </div>
-  );
-};
-
 export function SortableItem(props: {
   color: string;
   onChange: (color: string) => void;
-  id: number;
+  id: string;
 }) {
   const { color, onChange } = props;
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -151,20 +121,10 @@ export function SortableItem(props: {
   );
 }
 
-function Colors(props: {
-  colors: string[];
-  setColors: Dispatch<SetStateAction<string[]>>;
-}) {
-  const { colors, setColors } = props;
-  const [items, setItems] = useState(colors.map((_, i) => i + 1));
-
-  useEffect(() => {
-    if (colors.length > items.length) {
-      setItems((prevItems) => {
-        return [...prevItems, prevItems.length + 1];
-      });
-    }
-  }, [colors, items]);
+function Colors(props: { colorStore: ColorStore }) {
+  const { colorStore } = props;
+  const order = useColorStoreState(props.colorStore, "order");
+  const colorCodes = useColorStoreState(props.colorStore, "colorCodes");
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -180,19 +140,15 @@ function Colors(props: {
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={items} strategy={horizontalListSortingStrategy}>
-          {items.map((item) => (
+        <SortableContext items={order} strategy={horizontalListSortingStrategy}>
+          {order.map((item) => (
             <SortableItem
               id={item}
               onChange={(color) => {
-                setColors((prev) => {
-                  let next = [...prev];
-                  next[item - 1] = color;
-                  return next;
-                });
+                colorStore.updateColorCode(item, color);
               }}
               key={item}
-              color={colors[item - 1]}
+              color={colorCodes[item]}
             />
           ))}
         </SortableContext>
@@ -204,46 +160,23 @@ function Colors(props: {
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = items.indexOf(over.id);
-        const next = arrayMove(items, oldIndex, newIndex);
-        setColors(() => {
-          return next.map((i) => colors[i - 1]);
-        });
-        return next;
-      });
+      colorStore.updateOrder(active.id, over.id);
     }
   }
 }
 
 export const NoiseParameters = () => {
-  const [colors, setColors] = useState(["#333"]);
-  const [colorStops, setColorStops] = useState([100]);
   const [radii, setRadii] = useState(145);
 
-  useEffect(() => {
-    setColorStops(() => {
-      if (colors.length === 1) return [100];
-      if (colors.length === 2) return [0, 100];
-      const biggestColorStop = Math.max(...colorStops);
-      const next = Math.min(100, biggestColorStop + 10);
-      return [...colorStops, next];
-    });
-  }, [colors]);
+  const colorStore = useColorStore();
+  const colorCodes = useColorStoreState(colorStore, "colorCodes");
+  const colorStops = useColorStoreState(colorStore, "colorStops");
+  const order = useColorStoreState(colorStore, "order");
 
-  console.log(colors);
-
-  let bg = (_: number) => "";
-
-  if (colors.length === 1) {
-    bg = (_deg: number) => colors[0];
-  } else {
-    bg = (deg) =>
-      `linear-gradient(${deg}deg, ${colors
-        .map((color, i) => `${color} ${colorStops[i]}%`)
-        .join(", ")})`;
-  }
+  const bg = (deg: number) =>
+    `linear-gradient(${deg}deg, ${order
+      .map((id) => `${colorCodes[id]} ${colorStops[id]}%`)
+      .join(", ")})`;
 
   return (
     <div
@@ -261,22 +194,17 @@ export const NoiseParameters = () => {
             <span>Background</span>
             <div className="flex flex-col gap-4">
               <div>
-                <Colors colors={colors} setColors={setColors} />
+                <Colors colorStore={colorStore} />
                 <button
                   onClick={() => {
-                    setColors((prev) => [...prev, "#1e1e1e"]);
+                    colorStore.addColor("#333");
                   }}
                 >
                   Add
                 </button>
               </div>
               <div>
-                <RangeSlider
-                  colors={colors}
-                  trackBackground={bg(90)}
-                  value={colorStops}
-                  onChange={setColorStops}
-                />
+                <RangeSlider colorStore={colorStore} trackBackground={bg(90)} />
               </div>
               <div>
                 <RadiiSlider
