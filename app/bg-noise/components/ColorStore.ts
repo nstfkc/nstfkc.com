@@ -54,6 +54,11 @@ export class ColorStore {
     currentOrder[id1Index] = id2;
     currentOrder[id2Index] = id1;
 
+    const currentColors = this.colorCodes$.getValue();
+    // const id1Code = currentColors[id2];
+    // const id2Code = currentColors[id1];
+    this.colorCodes$.next({ ...currentColors });
+
     const colorStops = this.colorStops$.getValue();
 
     const id1Stop = colorStops[id2];
@@ -71,9 +76,31 @@ export class ColorStore {
     const nextId = `color-${
       Object.keys(this.colorCodes$.getValue()).length + 1
     }`;
+
+    const [biggestColorStopKey, biggestColorStopValue] = Object.entries(
+      this.colorStops$.getValue()
+    ).reduce(
+      (acc, [key, value]) => {
+        if (value > acc?.[1]) {
+          return [key, value];
+        }
+        return acc;
+      },
+      ["", 0]
+    );
+
+    let updatedBiggestColorStopValue = biggestColorStopValue;
+    if (biggestColorStopValue > 95) {
+      updatedBiggestColorStopValue = 95;
+    }
+
     this.colorCodes$.next({ ...this.colorCodes$.getValue(), [nextId]: code });
     this.order$.next([...this.order$.getValue(), nextId]);
-    this.colorStops$.next({ ...this.colorStops$.getValue(), [nextId]: 100 });
+    this.colorStops$.next({
+      ...this.colorStops$.getValue(),
+      [biggestColorStopKey]: updatedBiggestColorStopValue,
+      [nextId]: 100,
+    });
   };
 
   removeColor = (id: string) => {
@@ -83,10 +110,9 @@ export class ColorStore {
 
   updateColorStops = (stop: number[]) => {
     const currentValue = this.colorStops$.getValue();
+    const currentOrder = this.order$.getValue();
 
-    const currentStops = Object.entries(currentValue).map(
-      ([_, value]) => value
-    );
+    const currentStops = currentOrder.map((id) => currentValue[id]);
 
     let updatedKey = "";
     const diff = arrayDiff(stop, currentStops);
@@ -98,7 +124,6 @@ export class ColorStore {
       }
     }
 
-    const currentOrder = this.order$.getValue();
     const orderIndex = currentOrder.indexOf(updatedKey);
     const min = this.colorStops$.getValue()[currentOrder[orderIndex - 1]] ?? 0;
     const max =

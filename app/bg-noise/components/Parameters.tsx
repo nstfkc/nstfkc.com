@@ -34,13 +34,15 @@ const RangeSlider = (props: {
   const { colorStore, trackBackground } = props;
   const colorStops = useColorStoreState(colorStore, "colorStops");
   const colorCodes = useColorStoreState(colorStore, "colorCodes");
+  const order = useColorStoreState(colorStore, "order");
 
+  console.log(colorCodes);
+  console.log(order);
   return (
     <Slider.Root
       className="relative flex items-center select-none touch-none h-5"
-      value={Object.values(colorStops)}
+      value={order.map((id) => colorStops[id])}
       onValueChange={(nextValue) => {
-        console.log(nextValue);
         colorStore.updateColorStops(nextValue);
       }}
       min={0}
@@ -54,13 +56,17 @@ const RangeSlider = (props: {
       >
         <Slider.Range className="absolute h-full" />
       </Slider.Track>
-
-      {Object.values(colorCodes).map((color, i) => (
-        <Slider.Thumb
-          key={color + i}
-          style={{ background: color }}
-          className="w-4 border h-8 border-2 border-white/20 rounded-full block"
-        ></Slider.Thumb>
+      {order.map((id, idx) => (
+        <Slider.Thumb key={`thumb-${id}-${idx}`} asChild>
+          <span style={{ zIndex: 100 - idx * 10 }}>
+            <span
+              style={{ background: colorCodes[id] }}
+              className="w-4 border h-8 border-2 border-white/20 rounded-full block"
+            >
+              {id.replace("color-", "")}
+            </span>
+          </span>
+        </Slider.Thumb>
       ))}
     </Slider.Root>
   );
