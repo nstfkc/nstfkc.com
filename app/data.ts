@@ -12,8 +12,18 @@ import collapsible_sidebar_2 from "../public/assets/collapsible-sidebar-2.png";
 import connect_modal from "../public/assets/connect-modal.png";
 import payment_modal from "../public/assets/payment-modal.png";
 import email_confirm from "../public/assets/email-confirm.png";
+import minimalistic_music_player from "../public/assets/minimalistic-music-player.png";
 
 export const work = [
+  {
+    label: "Minimalistic Music Player",
+    url: "/minimalistic-music-player",
+    images: [minimalistic_music_player],
+    designer: {
+      label: "@Deconinck_co",
+      url: "https://twitter.com/Deconinck_co",
+    },
+  },
   {
     label: "Attio CRM clone",
     url: "/attio",

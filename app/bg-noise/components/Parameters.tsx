@@ -1,7 +1,7 @@
 "use client";
 
 import { BgNoise } from "@/components/BgNoise";
-import { ComponentProps, useEffect, useState } from "react";
+import { ComponentProps, useEffect, useReducer, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import {
   DndContext,
@@ -18,25 +18,32 @@ import {
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { ColorStore, useColorStore, useColorStoreState } from "./ColorStore";
 import { LuX } from "react-icons/lu";
+import { Root as SwitchRoot, Thumb } from "@radix-ui/react-switch";
+import { Color, defaultState, reducer } from "./reducer";
+
+export const Switch = (props: ComponentProps<typeof SwitchRoot>) => {
+  return (
+    <SwitchRoot
+      className="border border-neutral-950/30 w-[42px] h-[25px] bg-black/60 rounded-full relative bg-neutral-700 data-[state=checked]:bg-black/50 outline-none cursor-default"
+      {...props}
+    >
+      <Thumb className="block w-[20px] h-[20px] shadow-sm bg-white/40 rounded-full transition-transform duration-100 translate-x-0.5 will-change-transform data-[state=checked]:translate-x-[18px]" />
+    </SwitchRoot>
+  );
+};
 
 const RangeSlider = (props: {
-  colorStore: ColorStore;
+  colors: Color[];
+  updateColorStops: (nextColorStopArray: number[]) => void;
   trackBackground?: string;
 }) => {
-  const { colorStore, trackBackground } = props;
-  const colorStops = useColorStoreState(colorStore, "colorStops");
-  const colorCodes = useColorStoreState(colorStore, "colorCodes");
-  const order = useColorStoreState(colorStore, "order");
-
+  const { colors, updateColorStops, trackBackground } = props;
   return (
     <Slider.Root
       className="relative flex items-center select-none touch-none h-5"
-      value={order.map((id) => colorStops[id])}
-      onValueChange={(nextValue) => {
-        colorStore.updateColorStops(nextValue);
-      }}
+      value={colors.map((color) => color.stop)}
+      onValueChange={updateColorStops}
       min={0}
       max={100}
       step={1}
@@ -48,10 +55,10 @@ const RangeSlider = (props: {
       >
         <Slider.Range className="absolute h-full" />
       </Slider.Track>
-      {order.map((id, idx) => (
+      {colors.map((color, idx) => (
         <Slider.Thumb
-          key={`thumb-${id}-${idx}`}
-          style={{ background: colorCodes[id] }}
+          key={`thumb-${color.id}-${idx}`}
+          style={{ background: color.id }}
           className="group relative w-4 border h-8 border-2 border-white/20 rounded-full block outline-none"
         ></Slider.Thumb>
       ))}
@@ -76,7 +83,10 @@ const RadiiSlider = (props: ComponentProps<typeof Slider.Root>) => {
 
 const Container = (props: ComponentProps<"div">) => {
   return (
-    <div className="bg-white/10 w-[320px] rounded-xl p-4" {...props}></div>
+    <div
+      className="bg-white/10 backdrop-blur-[2px] w-[320px] rounded-xl p-4"
+      {...props}
+    ></div>
   );
 };
 
@@ -133,12 +143,19 @@ export function SortableItem(props: {
 }
 
 function Colors(props: {
-  colorStore: ColorStore;
+  colors: Color[];
   handleAddColor: VoidFunction;
+  handleUpdateColorCode: (id: string, code: string) => void;
+  handleUpdateColorOrder: (id1: string, id2: string) => void;
+  handleRemoveColor: (id: string) => void;
 }) {
-  const { colorStore, handleAddColor } = props;
-  const order = useColorStoreState(props.colorStore, "order");
-  const colorCodes = useColorStoreState(props.colorStore, "colorCodes");
+  const {
+    handleAddColor,
+    colors,
+    handleRemoveColor,
+    handleUpdateColorCode,
+    handleUpdateColorOrder,
+  } = props;
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -154,19 +171,22 @@ function Colors(props: {
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={order} strategy={horizontalListSortingStrategy}>
-          {order.map((item) => (
+        <SortableContext
+          items={colors.map((color) => color.id)}
+          strategy={horizontalListSortingStrategy}
+        >
+          {colors.map((color) => (
             <SortableItem
-              id={item}
-              showRemoveButton={order.length > 1}
+              id={color.id}
+              showRemoveButton={colors.length > 1}
               handleRemoveColor={() => {
-                colorStore.removeColor(item);
+                handleRemoveColor(color.id);
               }}
-              onChange={(color) => {
-                colorStore.updateColorCode(item, color);
+              onChange={(code) => {
+                handleUpdateColorCode(color.id, code);
               }}
-              key={item}
-              color={colorCodes[item]}
+              key={color.id}
+              color={color.code}
             ></SortableItem>
           ))}
         </SortableContext>
@@ -179,27 +199,30 @@ function Colors(props: {
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      colorStore.updateOrder(active.id, over.id);
+      handleUpdateColorOrder(active.id, over.id);
     }
   }
 }
 
 export const NoiseParameters = () => {
-  const [radii, setRadii] = useState(145);
   const [ready, setReady] = useState(false);
+  const [state, dispatch] = useReducer(reducer, defaultState);
 
-  const colorStore = useColorStore();
-  const colorCodes = useColorStoreState(colorStore, "colorCodes");
-  const colorStops = useColorStoreState(colorStore, "colorStops");
-  const order = useColorStoreState(colorStore, "order");
-
-  let bg = (_deg: number) => colorCodes[order[0]];
-  if (order.length > 1) {
+  let bg = (_deg: number) => state.colors[0].code;
+  if (state.colors.length > 1) {
     bg = (deg: number) =>
-      `linear-gradient(${deg}deg, ${order
-        .map((id) => `${colorCodes[id]} ${colorStops[id]}%`)
+      `${state.gradientType}(${
+        state.gradientType === "linear-gradient"
+          ? `${deg}deg`
+          : "circle at center"
+      }, ${state.colors
+        .map((color) => `${color.code} ${color.stop}%`)
         .join(", ")})`;
   }
+
+  const railBg = `linear-gradient(90deg,${state.colors
+    .map((color) => `${color.code} ${color.stop}%`)
+    .join(", ")})`;
 
   useEffect(() => {
     if (!ready) {
@@ -214,47 +237,169 @@ export const NoiseParameters = () => {
   return (
     <div
       style={{
-        background: bg(radii),
+        background: bg(state.gradientAngle),
       }}
-      className="w-full h-full p-8"
+      className="w-full h-full relative"
     >
-      <div className="w-full h-full relative rounded-2xl overflow-hidden shadow-md border border-slate-950/10">
-        <div className="absolute z-0 pointer-events-none w-full h-full">
-          <BgNoise baseFrequency={1} opacity={0.4} type="fractalNoise" />
-        </div>
-        <div className="w-full h-full relative z-10 flex items-center justify-center">
-          <Container>
-            <span>Background</span>
+      <div className="absolute z-0 pointer-events-none w-full h-full">
+        <BgNoise
+          baseFrequency={state.noiseIntensity}
+          opacity={state.noiseOpacity}
+          type={state.noiseType}
+        />
+      </div>
+      <div className="w-full h-full relative z-10 flex justify-end">
+        <Container>
+          <div>
+            <div className="text-lg">Background</div>
             <div className="flex flex-col gap-4">
-              <div>
+              <div className="flex flex-col gap-1">
+                <div>Colors</div>
                 <Colors
-                  colorStore={colorStore}
-                  handleAddColor={() => colorStore.addColor("#333021")}
+                  colors={state.colors}
+                  handleRemoveColor={(id) => {
+                    dispatch({
+                      type: "REMOVE_COLOR",
+                      payload: {
+                        id,
+                      },
+                    });
+                  }}
+                  handleUpdateColorCode={(id, code) => {
+                    dispatch({
+                      type: "UPDATE_COLOR_CODE",
+                      payload: { id, code },
+                    });
+                  }}
+                  handleUpdateColorOrder={(id1, id2) => {
+                    dispatch({
+                      type: "SWAP_COLORS",
+                      payload: {
+                        id1,
+                        id2,
+                      },
+                    });
+                  }}
+                  handleAddColor={() =>
+                    dispatch({
+                      type: "ADD_COLOR",
+                      payload: {
+                        code: "#333021",
+                      },
+                    })
+                  }
                 />
               </div>
-              {order.length > 1 && (
-                <div>
+              {state.colors.length > 1 && (
+                <div className="flex flex-col gap-1">
                   <div>Color stops</div>
                   <RangeSlider
-                    colorStore={colorStore}
-                    trackBackground={bg(90)}
+                    colors={state.colors}
+                    updateColorStops={(nextColorStopArray) => {
+                      dispatch({
+                        type: "UPDATE_COLOR_STOPS",
+                        payload: {
+                          colorStopsArray: nextColorStopArray,
+                        },
+                      });
+                    }}
+                    trackBackground={railBg}
                   />
                 </div>
               )}
-              {order.length > 1 && (
+              {state.colors.length > 1 && (
                 <div>
-                  <div>Angle</div>
-                  <RadiiSlider
-                    value={[radii]}
-                    onValueChange={([radii]) => setRadii(radii)}
-                    min={0}
-                    max={360}
+                  <div>Gradient type</div>
+                  <Switch
+                    checked={state.gradientType === "radial-gradient"}
+                    onCheckedChange={(checked) => {
+                      dispatch({
+                        type: "UPDATE_GRADIENT_TYPE",
+                        payload: {
+                          gradientType: checked
+                            ? "radial-gradient"
+                            : "linear-gradient",
+                        },
+                      });
+                    }}
                   />
                 </div>
               )}
+              {state.colors.length > 1 &&
+                state.gradientType === "linear-gradient" && (
+                  <div className="flex flex-col gap-1">
+                    <div className="">Angle</div>
+                    <RadiiSlider
+                      value={[state.gradientAngle]}
+                      onValueChange={([gradientAngle]) =>
+                        dispatch({
+                          type: "UPDATE_GRADIENT_ANGLE",
+                          payload: {
+                            gradientAngle,
+                          },
+                        })
+                      }
+                      min={0}
+                      max={360}
+                    />
+                  </div>
+                )}
             </div>
-          </Container>
-        </div>
+          </div>
+          <div className="h-8"></div>
+          <div>
+            <div className="text-lg">Noise</div>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <div>Base frequency</div>
+                <RadiiSlider
+                  value={[state.noiseIntensity]}
+                  onValueChange={([noiseIntensity]) =>
+                    dispatch({
+                      type: "UPDATE_NOISE_INTENSITY",
+                      payload: {
+                        noiseIntensity,
+                      },
+                    })
+                  }
+                  min={0}
+                  max={2}
+                  step={0.01}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <div>Opacity</div>
+                <RadiiSlider
+                  value={[state.noiseOpacity]}
+                  onValueChange={([noiseOpacity]) =>
+                    dispatch({
+                      type: "UPDATE_NOISE_OPACITY",
+                      payload: {
+                        noiseOpacity,
+                      },
+                    })
+                  }
+                  min={0}
+                  max={1}
+                  step={0.01}
+                />
+              </div>
+              <div>
+                <Switch
+                  checked={state.noiseType === "turbulence"}
+                  onCheckedChange={(checked) => {
+                    dispatch({
+                      type: "UPDATE_NOISE_TYPE",
+                      payload: {
+                        noiseType: checked ? "turbulence" : "fractalNoise",
+                      },
+                    });
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </Container>
       </div>
     </div>
   );
