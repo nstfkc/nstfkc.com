@@ -21,6 +21,36 @@ import {
 import { LuX } from "react-icons/lu";
 import { Root as SwitchRoot, Thumb } from "@radix-ui/react-switch";
 import { Color, defaultState, reducer } from "./reducer";
+import * as _RadioGroup from "@radix-ui/react-radio-group";
+
+interface RadioGroupProps extends ComponentProps<typeof _RadioGroup.Root> {
+  items: { label: string; value: string }[];
+}
+
+const RadioGroup = ({ items, ...props }: RadioGroupProps) => {
+  return (
+    <_RadioGroup.Root className="flex gap-2" {...props}>
+      {items.map((item) => (
+        <div className="flex items-center">
+          <_RadioGroup.Item
+            className="bg-white/60 size-[16px] rounded-full shadow-[0_2px_10px] shadow-black/40 hover:bg-white/80 focus:shadow-[0_0_0_2px] focus:shadow-black outline-none cursor-default"
+            value={item.value}
+            id={item.value}
+          >
+            <_RadioGroup.Indicator className="flex items-center justify-center w-full h-full relative after:content-[''] after:block after:w-[11px] after:h-[11px] after:rounded-[50%] after:bg-black" />
+          </_RadioGroup.Item>
+          <label
+            className="text-white text-[15px] leading-none pl-[15px]"
+            htmlFor={item.value}
+          >
+            {item.label}
+          </label>
+        </div>
+      ))}
+      <a href=""></a>
+    </_RadioGroup.Root>
+  );
+};
 
 export const Switch = (props: ComponentProps<typeof SwitchRoot>) => {
   return (
@@ -310,18 +340,20 @@ export const NoiseParameters = () => {
               {state.colors.length > 1 && (
                 <div>
                   <div>Gradient type</div>
-                  <Switch
-                    checked={state.gradientType === "radial-gradient"}
-                    onCheckedChange={(checked) => {
+                  <RadioGroup
+                    value={state.gradientType}
+                    onValueChange={(gradientType) => {
                       dispatch({
                         type: "UPDATE_GRADIENT_TYPE",
                         payload: {
-                          gradientType: checked
-                            ? "radial-gradient"
-                            : "linear-gradient",
+                          gradientType: gradientType as any,
                         },
                       });
                     }}
+                    items={[
+                      { label: "Linear", value: "linear-gradient" },
+                      { label: "Radial", value: "radial-gradient" },
+                    ]}
                   />
                 </div>
               )}
@@ -385,16 +417,21 @@ export const NoiseParameters = () => {
                 />
               </div>
               <div>
-                <Switch
-                  checked={state.noiseType === "turbulence"}
-                  onCheckedChange={(checked) => {
+                <div>Noise type</div>
+                <RadioGroup
+                  value={state.noiseType}
+                  onValueChange={(noiseType) => {
                     dispatch({
                       type: "UPDATE_NOISE_TYPE",
                       payload: {
-                        noiseType: checked ? "turbulence" : "fractalNoise",
+                        noiseType: noiseType as any,
                       },
                     });
                   }}
+                  items={[
+                    { label: "Fractal noise", value: "fractalNoise" },
+                    { label: "Turbulence", value: "turbulence" },
+                  ]}
                 />
               </div>
             </div>
