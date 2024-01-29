@@ -22,6 +22,7 @@ import { LuX } from "react-icons/lu";
 import { Root as SwitchRoot, Thumb } from "@radix-ui/react-switch";
 import { Color, defaultState, reducer } from "./reducer";
 import * as _RadioGroup from "@radix-ui/react-radio-group";
+import { ColorInput } from "@/components/ColorPicker";
 
 interface RadioGroupProps extends ComponentProps<typeof _RadioGroup.Root> {
   items: { label: string; value: string }[];
@@ -126,8 +127,15 @@ export function SortableItem(props: {
   handleRemoveColor: () => void;
   showRemoveButton?: boolean;
   id: string;
+  editModeEnabled: boolean;
 }) {
-  const { color, onChange, handleRemoveColor, showRemoveButton = true } = props;
+  const {
+    color,
+    onChange,
+    handleRemoveColor,
+    showRemoveButton = true,
+    editModeEnabled = false,
+  } = props;
   const { attributes, listeners, setNodeRef, transform, transition, active } =
     useSortable({ id: props.id });
 
@@ -136,8 +144,18 @@ export function SortableItem(props: {
     transition,
   };
 
+  if (editModeEnabled) {
+    return (
+      <ColorInput
+        className="size-12 rounded-md overflow-hidden border-2 border-white/10"
+        value={color}
+        onValueChange={(e) => onChange(e.valueAsString)}
+      />
+    );
+  }
+
   return (
-    <div className="relative group">
+    <div className="relative">
       <div
         ref={setNodeRef}
         style={style}
@@ -145,29 +163,25 @@ export function SortableItem(props: {
         {...listeners}
         aria-describedby={`item-${props.id}`}
       >
-        <div
-          className="group"
-          style={{ background: color, position: "relative" }}
-        >
-          <input
-            className="opacity-0 bg-transparent border border-white/20 rounded-md px-1 py-[2px] h-12"
-            type="color"
-            onChange={(e) => onChange(e.target.value)}
+        <div className="group">
+          <ColorInput
+            className="size-12 rounded-md overflow-hidden border-2 border-white/20"
             value={color}
+            onValueChange={(e) => onChange(e.valueAsString)}
           />
         </div>
+        {showRemoveButton && (
+          <button
+            onClick={(event) => {
+              event.preventDefault();
+              handleRemoveColor();
+            }}
+            className="absolute right-[-6px] top-[-6px] z-[100] rounded-full p-[1px] bg-white/80 shadow-sm"
+          >
+            <LuX />
+          </button>
+        )}
       </div>
-      {!active && showRemoveButton && (
-        <button
-          onClick={(event) => {
-            event.preventDefault();
-            handleRemoveColor();
-          }}
-          className="absolute invisible group-hover:visible right-[-6px] top-[-6px] z-[100] rounded-full p-[1px] bg-white/80 shadow-sm"
-        >
-          <LuX />
-        </button>
-      )}
     </div>
   );
 }
@@ -186,6 +200,8 @@ function Colors(props: {
     handleUpdateColorCode,
     handleUpdateColorOrder,
   } = props;
+
+  const [editModeEnabled, setEditModeEnabled] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -207,6 +223,7 @@ function Colors(props: {
         >
           {colors.map((color) => (
             <SortableItem
+              editModeEnabled={editModeEnabled}
               id={color.id}
               showRemoveButton={colors.length > 1}
               handleRemoveColor={() => {
@@ -222,6 +239,7 @@ function Colors(props: {
         </SortableContext>
       </DndContext>
       <button onClick={handleAddColor}>Add</button>
+      <button onClick={() => setEditModeEnabled((s) => !s)}>Edit</button>
     </div>
   );
 
@@ -278,7 +296,7 @@ export const NoiseParameters = () => {
           type={state.noiseType}
         />
       </div>
-      <div className="w-full h-full relative z-10 flex justify-end">
+      <div className="w-full h-full relative z-10 p-4 flex justify-end">
         <Container>
           <div>
             <div className="text-lg">Background</div>
