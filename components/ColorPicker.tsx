@@ -1,10 +1,42 @@
+import { HiMiniEyeDropper } from "react-icons/hi2";
 import { ColorPicker } from "@ark-ui/react/color-picker";
 import { ComponentProps } from "react";
+import * as _RadioGroup from "@radix-ui/react-radio-group";
+
+interface RadioGroupProps extends ComponentProps<typeof _RadioGroup.Root> {
+  items: { label: string; value: string }[];
+}
+
+const RadioGroup = ({ items, ...props }: RadioGroupProps) => {
+  return (
+    <_RadioGroup.Root className="flex gap-2" {...props}>
+      {items.map((item) => (
+        <div className="flex items-center" key={item.value}>
+          <_RadioGroup.Item
+            className="bg-white/60 size-[16px] rounded-full shadow-[0_2px_10px] shadow-black/40 hover:bg-white/80 focus:shadow-[0_0_0_2px] focus:shadow-black outline-none cursor-default"
+            value={item.value}
+            id={item.value}
+          >
+            <_RadioGroup.Indicator className="flex items-center justify-center w-full h-full relative after:content-[''] after:block after:w-[11px] after:h-[11px] after:rounded-[50%] after:bg-black" />
+          </_RadioGroup.Item>
+          <label
+            className="text-white text-[15px] leading-none pl-[15px]"
+            htmlFor={item.value}
+          >
+            {item.label}
+          </label>
+        </div>
+      ))}
+      <a href=""></a>
+    </_RadioGroup.Root>
+  );
+};
 
 export const ColorInput = (props: ComponentProps<typeof ColorPicker.Root>) => {
   return (
     <ColorPicker.Root {...props}>
       {(api) => {
+        console.log(api.format);
         const hueLeft = api.getChannelSliderThumbProps({ channel: "hue" }).style
           ?.left;
         return (
@@ -19,13 +51,16 @@ export const ColorInput = (props: ComponentProps<typeof ColorPicker.Root>) => {
               </ColorPicker.Trigger>
             </ColorPicker.Control>
             <ColorPicker.Positioner
-              style={{ background: "rgba(255,255,255,0.8)", zIndex: 1000 }}
-              className="bg-white w-[240px] py-2 rounded-md overflow-hidden shadow-md backdrop-blur-[4px]"
+              style={{
+                background: "rgba(255,255,255,0.8)",
+                zIndex: 1000,
+                minWidth: "270px",
+              }}
+              className="bg-white w-[290px] rounded-md overflow-hidden shadow-md backdrop-blur-[4px]"
             >
               <ColorPicker.Content>
-                <ColorPicker.FormatSelect />
                 <ColorPicker.Area
-                  style={{ "--z-index": 1000, border: "none" }}
+                  style={{ border: "none" }}
                   className="w-full aspect-video overflow-hidden"
                 >
                   <ColorPicker.AreaBackground className="w-full h-full" />
@@ -52,7 +87,7 @@ export const ColorInput = (props: ComponentProps<typeof ColorPicker.Root>) => {
                     className="size-4 rounded-full shadow-md border border-black"
                   />{" "}
                 </ColorPicker.ChannelSlider>
-                <ColorPicker.SwatchGroup>
+                <ColorPicker.SwatchGroup className="hidden">
                   <ColorPicker.SwatchTrigger value="red">
                     <ColorPicker.Swatch value="red">
                       <ColorPicker.SwatchIndicator>
@@ -75,25 +110,42 @@ export const ColorInput = (props: ComponentProps<typeof ColorPicker.Root>) => {
                     </ColorPicker.Swatch>
                   </ColorPicker.SwatchTrigger>
                 </ColorPicker.SwatchGroup>
-                <div className="px-2 flex gap-2">
-                  <ColorPicker.View format="rgba" className="flex gap-2">
-                    <ColorPicker.ChannelInput
-                      className="bg-white/80 rounded-md px-1 outline-none"
-                      channel="hex"
-                    />
-                    <ColorPicker.ChannelInput
-                      className="bg-white/80 rounded-md px-1 outline-none"
-                      channel="alpha"
-                    />
-                  </ColorPicker.View>
-                  <ColorPicker.View format="hsla">
-                    <ColorPicker.ChannelInput channel="hue" />
-                    <ColorPicker.ChannelInput channel="saturation" />
-                    <ColorPicker.ChannelInput channel="lightness" />
-                  </ColorPicker.View>
-                  <ColorPicker.EyeDropperTrigger>
-                    Pick color
-                  </ColorPicker.EyeDropperTrigger>
+
+                <div className="p-2 flex flex-col gap-2">
+                  <ColorPicker.FormatSelect className="outline-none rounded-md py-1" />
+                  <div className="flex justify-between gap-2">
+                    <ColorPicker.View format="rgba" className="flex gap-2">
+                      <ColorPicker.ChannelInput
+                        className="bg-white/80 rounded-md px-1 outline-none max-w-[77px]"
+                        channel="hex"
+                      />
+                      <ColorPicker.ChannelInput
+                        className="bg-white/80 rounded-md px-1 outline-none"
+                        channel="alpha"
+                      />
+                    </ColorPicker.View>
+                    <ColorPicker.View
+                      data-open="true"
+                      className="flex gap-2"
+                      format="hsla"
+                    >
+                      <ColorPicker.ChannelInput
+                        className="bg-white/80 rounded-md px-1 outline-none min-w-[76px]"
+                        channel="hue"
+                      />
+                      <ColorPicker.ChannelInput
+                        className="bg-white/80 rounded-md px-1 outline-none min-w-[76px]"
+                        channel="saturation"
+                      />
+                      <ColorPicker.ChannelInput
+                        className="bg-white/80 rounded-md px-1 outline-none min-w-[76px]"
+                        channel="lightness"
+                      />
+                    </ColorPicker.View>
+                    <ColorPicker.EyeDropperTrigger>
+                      <HiMiniEyeDropper />
+                    </ColorPicker.EyeDropperTrigger>
+                  </div>
                 </div>
               </ColorPicker.Content>
             </ColorPicker.Positioner>
