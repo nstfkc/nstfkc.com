@@ -370,9 +370,7 @@ export const NoiseParameters = () => {
                   handleAddColor={() =>
                     dispatch({
                       type: "ADD_COLOR",
-                      payload: {
-                        code: "#333021",
-                      },
+                      payload: {},
                     })
                   }
                 />

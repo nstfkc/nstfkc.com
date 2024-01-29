@@ -152,7 +152,7 @@ const addColor: Handler<AddColor> = (payload, state) => {
       ...state.colors,
       {
         id: nextId,
-        code: payload.code || "#000000",
+        code: payload.code || uniqolor.random().color,
         stop: 100,
       },
     ].map((color) => {
