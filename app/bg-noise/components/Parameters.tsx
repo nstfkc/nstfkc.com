@@ -32,7 +32,7 @@ const RadioGroup = ({ items, ...props }: RadioGroupProps) => {
   return (
     <_RadioGroup.Root className="flex gap-2" {...props}>
       {items.map((item) => (
-        <div className="flex items-center">
+        <div className="flex items-center" key={item.value}>
           <_RadioGroup.Item
             className="bg-white/60 size-[16px] rounded-full shadow-[0_2px_10px] shadow-black/40 hover:bg-white/80 focus:shadow-[0_0_0_2px] focus:shadow-black outline-none cursor-default"
             value={item.value}
