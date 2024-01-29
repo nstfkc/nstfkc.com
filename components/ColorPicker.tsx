@@ -1,4 +1,4 @@
-import { HiMiniEyeDropper } from "react-icons/hi2";
+import { HiMiniEyeDropper, HiPencil } from "react-icons/hi2";
 import { ColorPicker } from "@ark-ui/react/color-picker";
 import { ComponentProps } from "react";
 import * as _RadioGroup from "@radix-ui/react-radio-group";
@@ -36,7 +36,6 @@ export const ColorInput = (props: ComponentProps<typeof ColorPicker.Root>) => {
   return (
     <ColorPicker.Root {...props}>
       {(api) => {
-        console.log(api.format);
         const hueLeft = api.getChannelSliderThumbProps({ channel: "hue" }).style
           ?.left;
         return (
@@ -45,9 +44,12 @@ export const ColorInput = (props: ComponentProps<typeof ColorPicker.Root>) => {
               <ColorPicker.Trigger className="w-full h-full">
                 <ColorPicker.TransparencyGrid className="" />
                 <ColorPicker.Swatch
-                  className="w-full h-full"
+                  data-dnd-ignore="true"
+                  className="w-full h-full flex items-center justify-center"
                   value={api.valueAsString}
-                />
+                >
+                  <HiPencil className="text-sm text-white pointer-events-none" />
+                </ColorPicker.Swatch>
               </ColorPicker.Trigger>
             </ColorPicker.Control>
             <ColorPicker.Positioner

@@ -127,15 +127,8 @@ export function SortableItem(props: {
   handleRemoveColor: () => void;
   showRemoveButton?: boolean;
   id: string;
-  editModeEnabled: boolean;
 }) {
-  const {
-    color,
-    onChange,
-    handleRemoveColor,
-    showRemoveButton = true,
-    editModeEnabled = false,
-  } = props;
+  const { color, onChange, handleRemoveColor, showRemoveButton = true } = props;
   const { attributes, listeners, setNodeRef, transform, transition, active } =
     useSortable({ id: props.id });
 
@@ -144,18 +137,8 @@ export function SortableItem(props: {
     transition,
   };
 
-  if (editModeEnabled) {
-    return (
-      <ColorInput
-        className="size-12 rounded-md overflow-hidden border-2 border-white/10"
-        value={color}
-        onValueChange={(e) => onChange(e.valueAsString)}
-      />
-    );
-  }
-
   return (
-    <div className="relative">
+    <div className="relative group">
       <div
         ref={setNodeRef}
         style={style}
@@ -163,27 +146,48 @@ export function SortableItem(props: {
         {...listeners}
         aria-describedby={`item-${props.id}`}
       >
-        <div className="group">
+        <div
+          style={{ background: color }}
+          className="group size-12 flex items-center justify-center border-2 border-white/20 rounded-md"
+        >
           <ColorInput
-            className="size-12 rounded-md overflow-hidden border-2 border-white/20"
+            className="size-6 rounded-md overflow-hidden border-2 border-white/20"
             value={color}
-            onValueChange={(e) => onChange(e.valueAsString)}
+            onValueChange={(e) => {
+              onChange(e.valueAsString);
+            }}
           />
         </div>
         {showRemoveButton && (
           <button
+            data-dnd-ignore="true"
             onClick={(event) => {
+              event.stopPropagation();
               event.preventDefault();
               handleRemoveColor();
             }}
-            className="absolute right-[-6px] top-[-6px] z-[100] rounded-full p-[1px] bg-white/80 shadow-sm"
+            className="absolute invisible group-hover:visible right-[-6px] top-[-6px] z-[100] rounded-full p-[1px] bg-white/80 shadow-sm"
           >
-            <LuX />
+            <LuX className="pointer-events-none" />
           </button>
         )}
       </div>
     </div>
   );
+}
+
+class CustomPointerSensor extends PointerSensor {
+  static activators = [
+    {
+      eventName: "onPointerDown" as const,
+      handler: ({ nativeEvent: event }: { nativeEvent: PointerEvent }) => {
+        if (event.target?.dataset.dndIgnore) {
+          return false;
+        }
+        return true;
+      },
+    },
+  ];
 }
 
 function Colors(props: {
@@ -201,10 +205,8 @@ function Colors(props: {
     handleUpdateColorOrder,
   } = props;
 
-  const [editModeEnabled, setEditModeEnabled] = useState(false);
-
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(CustomPointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -223,7 +225,6 @@ function Colors(props: {
         >
           {colors.map((color) => (
             <SortableItem
-              editModeEnabled={editModeEnabled}
               id={color.id}
               showRemoveButton={colors.length > 1}
               handleRemoveColor={() => {
@@ -239,7 +240,6 @@ function Colors(props: {
         </SortableContext>
       </DndContext>
       <button onClick={handleAddColor}>Add</button>
-      <button onClick={() => setEditModeEnabled((s) => !s)}>Edit</button>
     </div>
   );
 
