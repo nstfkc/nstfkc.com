@@ -1,3 +1,5 @@
+import uniqolor from "uniqolor";
+
 import { arrayDiff, generateRandomId } from "./helpers";
 import { Reducer } from "react";
 
@@ -20,11 +22,16 @@ export const defaultState: State = {
   colors: [
     {
       id: generateRandomId(),
-      code: "#000000",
+      code: uniqolor.random().color,
       stop: 0,
     },
+    {
+      id: generateRandomId(),
+      code: uniqolor.random().color,
+      stop: 100,
+    },
   ],
-  gradientAngle: 0,
+  gradientAngle: 90,
   gradientType: "linear-gradient",
   noiseType: "turbulence",
   noiseIntensity: 0.5,

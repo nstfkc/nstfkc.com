@@ -23,6 +23,12 @@ import { Root as SwitchRoot, Thumb } from "@radix-ui/react-switch";
 import { Color, defaultState, reducer } from "./reducer";
 import * as _RadioGroup from "@radix-ui/react-radio-group";
 import { ColorInput } from "@/components/ColorPicker";
+import { generateCode } from "./helpers";
+import {
+  HiClipboard,
+  HiClipboardDocument,
+  HiClipboardDocumentCheck,
+} from "react-icons/hi2";
 
 interface RadioGroupProps extends ComponentProps<typeof _RadioGroup.Root> {
   items: { label: string; value: string }[];
@@ -90,7 +96,7 @@ const RangeSlider = (props: {
         <Slider.Thumb
           key={`thumb-${color.id}-${idx}`}
           style={{ background: color.id }}
-          className="group relative w-4 border h-8 border-2 border-white/20 rounded-full block outline-none"
+          className="group relative w-4 border h-8 border-2 border-white/40 rounded-full block outline-none"
         ></Slider.Thumb>
       ))}
     </Slider.Root>
@@ -100,14 +106,14 @@ const RangeSlider = (props: {
 const RadiiSlider = (props: ComponentProps<typeof Slider.Root>) => {
   return (
     <Slider.Root
-      className="relative flex items-center select-none touch-none h-6 rounded-md bg-white/10"
+      className="relative flex items-center select-none touch-none h-6 rounded-md bg-white/30"
       {...props}
     >
       <Slider.Track className="w-full relative grow h-8">
         <Slider.Range className="absolute h-full" />
       </Slider.Track>
 
-      <Slider.Thumb className="w-4 border h-8 border-2 border-white/20 rounded-full block"></Slider.Thumb>
+      <Slider.Thumb className="w-4 border h-8 border-2 border-white/40 rounded-full block"></Slider.Thumb>
     </Slider.Root>
   );
 };
@@ -115,7 +121,7 @@ const RadiiSlider = (props: ComponentProps<typeof Slider.Root>) => {
 const Container = (props: ComponentProps<"div">) => {
   return (
     <div
-      className="bg-white/10 backdrop-blur-[2px] w-[320px] rounded-xl p-4"
+      className="bg-white/10 backdrop-blur-[2px] w-[320px] rounded-xl p-4 overflow-scroll"
       {...props}
     ></div>
   );
@@ -252,6 +258,32 @@ function Colors(props: {
   }
 }
 
+const CopyButton = ({ text }: { text: string }) => {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setCopied(true);
+          await new Promise((resolve) =>
+            setTimeout(() => {
+              setCopied(false);
+              resolve({});
+            }, 3000)
+          );
+          console.log("Content copied to clipboard");
+        } catch (err) {
+          console.error("Failed to copy: ", err);
+        }
+      }}
+      className="absolute right-2 top-2 p-2 bg-white/90 rounded-md shadow-md"
+    >
+      {copied ? <HiClipboardDocumentCheck /> : <HiClipboardDocument />}
+    </button>
+  );
+};
+
 export const NoiseParameters = () => {
   const [ready, setReady] = useState(false);
   const [state, dispatch] = useReducer(reducer, defaultState);
@@ -282,12 +314,19 @@ export const NoiseParameters = () => {
     return null;
   }
 
+  const generatedCode = generateCode({
+    background: bg(state.gradientAngle),
+    baseFrequency: state.noiseIntensity,
+    noiseType: state.noiseType,
+    opacity: state.noiseOpacity,
+  });
+
   return (
     <div
       style={{
         background: bg(state.gradientAngle),
       }}
-      className="w-full h-full relative"
+      className="w-full h-full overflow-scroll"
     >
       <div className="absolute z-0 pointer-events-none w-full h-full">
         <BgNoise
@@ -299,7 +338,7 @@ export const NoiseParameters = () => {
       <div className="w-full h-full relative z-10 p-4 flex justify-end">
         <Container>
           <div>
-            <div className="text-lg">Background</div>
+            <div className="text-lg font-semibold">Background</div>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
                 <div>Colors</div>
@@ -398,7 +437,7 @@ export const NoiseParameters = () => {
           </div>
           <div className="h-8"></div>
           <div>
-            <div className="text-lg">Noise</div>
+            <div className="text-lg font-semibold">Noise</div>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
                 <div>Base frequency</div>
@@ -452,6 +491,14 @@ export const NoiseParameters = () => {
                   ]}
                 />
               </div>
+            </div>
+          </div>
+          <div className="h-4"></div>
+          <div>
+            <div className="text-lg font-semibold">Code</div>
+            <div className="overflow-scroll bg-white/30 rounded-md p-2 h-48 relative">
+              <CopyButton text={generatedCode} />
+              <pre>{generatedCode}</pre>
             </div>
           </div>
         </Container>
