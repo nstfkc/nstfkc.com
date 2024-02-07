@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import useScrollSnap from "./useScrollSnap";
 import { useScroll, motion, useVelocity } from "framer-motion";
 
 const Channel = () => {
@@ -36,12 +35,8 @@ interface CalculateTopParams {
   scrollYProgress: number;
 }
 
-function calculateTop(params: CalculateTopParams) {
-  const { totalItems, itemHeight, index, scrollYProgress } = params;
-}
-
-function top(i: number, n: number) {
-  return 1 / (Math.E ^ ((n * i) ^ 2));
+function top(x: number, a = 1) {
+  return Number((1 / Math.pow(Math.E, Math.pow(x * a, 2))).toFixed(2));
 }
 
 export const Chat = () => {
@@ -53,7 +48,14 @@ export const Chat = () => {
     return scrollVelocity.on("change", (latest) => {});
   }, [scrollVelocity]);
 
-  const index = 3;
+  const index = 5;
+
+  console.table(
+    Array.from({ length: ITEM_COUNT }).map((_, i) => [
+      index - i,
+      top(index - i, 0.2) * 100,
+    ])
+  );
 
   return (
     <div className="container max-w-2xl mx-auto flex items-center h-full">
@@ -63,16 +65,13 @@ export const Chat = () => {
           <motion.div
             key={i}
             style={{
-              top: `${top(index - i, 1) * 140}px`,
-              zIndex: 100 - i,
+              top: `${(top(index - i, 0.1) * ITEM_HEIGHT) / 2}px`,
+              zIndex: top(index - i, 0.1) * 100,
             }}
             data-scale={top(i + 0, 1)}
             className="absolute"
           >
-            <div>
-              {i}
-              <Channel />
-            </div>
+            <Channel />
           </motion.div>
         ))}
       </div>
