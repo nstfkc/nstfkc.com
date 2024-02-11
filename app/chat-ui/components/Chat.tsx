@@ -59,7 +59,7 @@ function calcX2(x: number, a = 1) {
 }
 
 const ScrollSnapChild = () => (
-  <div className="absolute">
+  <>
     {Array.from({ length: ITEM_COUNT }).map((_, i) => (
       <div
         className="scroll-snap-child"
@@ -67,7 +67,7 @@ const ScrollSnapChild = () => (
         style={{ height: `${ITEM_HEIGHT}px` }}
       ></div>
     ))}
-  </div>
+  </>
 );
 
 export const Chat = () => {
@@ -87,15 +87,10 @@ export const Chat = () => {
             ref={ref}
             className="relative w-full h-[400px] overflow-scroll bg-red-100 scroll-snap-container"
           >
-            <motion.div
-              className="relative top-0 bg-green-100"
-              style={{ top: scrollY, height: "400px" }}
-            >
-              {Array.from({ length: ITEM_COUNT }).map((_, i) => (
-                <Item key={i} index={i} scrollYProgress={scrollYProgress} />
-              ))}
-            </motion.div>
-            <div style={{ height: `${ITEM_COUNT * ITEM_HEIGHT}px` }}></div>
+            {Array.from({ length: ITEM_COUNT }).map((_, i) => (
+              <Item key={i} index={i} scrollYProgress={scrollYProgress} />
+            ))}
+            <ScrollSnapChild />
           </div>
         </div>
       </ConfigProvider>
@@ -115,7 +110,8 @@ const Item = (props: {
     const dx = scrollYProgress.get();
     const x = ((dx * fullHeight) % ITEM_HEIGHT) / ITEM_HEIGHT;
     const currentIndex = Math.floor(dx * ITEM_COUNT);
-    return top2(top2(index - currentIndex - x, a), b) * multiplier + offset;
+    const s = dx * fullHeight * (ITEM_HEIGHT / 100);
+    return top2(top2(index - currentIndex - x, a), b) * multiplier + offset + s;
   });
 
   const scale = useTransform(scrollYProgress, () => {
