@@ -154,18 +154,15 @@ const Item = (props: {
   const t = useTransform(scrollYProgress, () => {
     const fullHeight = ITEM_COUNT * ITEM_HEIGHT;
     const dx = scrollYProgress.get();
-    const x = ((dx * fullHeight) % ITEM_HEIGHT) / 100;
+    const x = ((dx * fullHeight) % ITEM_HEIGHT) / ITEM_HEIGHT;
     const currentIndex = Math.floor(dx * ITEM_COUNT);
-    if (index === 0) {
-      console.log(x);
-    }
     return top2(top2(index - currentIndex - x, A), B) * MULTIPLIER + OFFSET;
   });
 
   const scale = useTransform(scrollYProgress, () => {
     const fullHeight = ITEM_COUNT * ITEM_HEIGHT;
     const dx = scrollYProgress.get();
-    const x = ((dx * fullHeight) % ITEM_HEIGHT) / 100;
+    const x = ((dx * fullHeight) % ITEM_HEIGHT) / ITEM_HEIGHT;
 
     const currentIndex = Math.floor(dx * ITEM_COUNT);
     return top(index - currentIndex - x, 0.15);
