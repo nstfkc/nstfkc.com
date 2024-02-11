@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   useScroll,
   motion,
@@ -8,7 +8,7 @@ import {
   useTransform,
   MotionValue,
 } from "framer-motion";
-import { ConfigProvider } from "./ConfigContext";
+import { ConfigContext, ConfigProvider } from "./ConfigContext";
 
 const Channel = (props: { id: string }) => {
   return (
@@ -103,23 +103,19 @@ export const Chat = () => {
   );
 };
 
-const A = 1.42;
-const B = 1.4;
-const MULTIPLIER = 160;
-const OFFSET = 120;
-
 const Item = (props: {
   index: number;
   scrollYProgress: MotionValue<number>;
 }) => {
   const { index, scrollYProgress } = props;
+  const { a, b, multiplier, offset } = useContext(ConfigContext);
 
   const t = useTransform(scrollYProgress, () => {
     const fullHeight = ITEM_COUNT * ITEM_HEIGHT;
     const dx = scrollYProgress.get();
     const x = ((dx * fullHeight) % ITEM_HEIGHT) / ITEM_HEIGHT;
     const currentIndex = Math.floor(dx * ITEM_COUNT);
-    return top2(top2(index - currentIndex - x, A), B) * MULTIPLIER + OFFSET;
+    return top2(top2(index - currentIndex - x, a), b) * multiplier + offset;
   });
 
   const scale = useTransform(scrollYProgress, () => {

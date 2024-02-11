@@ -7,7 +7,7 @@ interface ConfigContextValue {
   offset: number;
 }
 
-const ConfigContext = createContext<ConfigContextValue>(
+export const ConfigContext = createContext<ConfigContextValue>(
   {} as ConfigContextValue
 );
 
