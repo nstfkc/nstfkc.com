@@ -47,3 +47,13 @@
 .recess {
   box-shadow:  0px -1px 0px 0px rgba(0,0,0,0.8), 0px 1px 0px 0px rgba(255,255,255,0.15);
 }
+
+.scroll-snap-container {
+  scroll-snap-type: mandatory;
+  scroll-snap-points-y: repeat(74px);
+  scroll-snap-type: y mandatory;
+}
+
+.scroll-snap-child {
+  scroll-snap-align: end;
+}

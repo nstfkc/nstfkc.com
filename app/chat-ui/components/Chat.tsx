@@ -8,6 +8,7 @@ import {
   useTransform,
   MotionValue,
 } from "framer-motion";
+import { ConfigProvider } from "./ConfigContext";
 
 const Channel = (props: { id: string }) => {
   return (
@@ -57,85 +58,47 @@ function calcX2(x: number, a = 1) {
   return Math.sqrt((Math.asin(x) / 2) * Math.E);
 }
 
+const ScrollSnapChild = () => (
+  <div className="absolute">
+    {Array.from({ length: ITEM_COUNT }).map((_, i) => (
+      <div
+        className="scroll-snap-child"
+        key={i}
+        style={{ height: `${ITEM_HEIGHT}px` }}
+      ></div>
+    ))}
+  </div>
+);
+
 export const Chat = () => {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: ref });
   const scrollVelocity = useVelocity(scrollYProgress);
 
-  const [a, setA] = useState(1.42);
-  const [b, setB] = useState(1.4);
-  const [multiplier, setMultiplier] = useState(160);
-  const [offset, setOffset] = useState(120);
   const scrollY = useTransform(
     () => scrollYProgress.get() * ITEM_COUNT * ITEM_HEIGHT
   );
 
   return (
     <div className="container max-w-2xl mx-auto h-full">
-      <div>
-        <div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="">a: {a}</label>
-            <input
-              type="range"
-              min={0}
-              max={10}
-              step={0.01}
-              value={a}
-              onChange={(e) => setA(Number(e.target.value))}
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="">b: {b}</label>
-            <input
-              type="range"
-              min={0}
-              max={10}
-              step={0.1}
-              value={b}
-              onChange={(e) => setB(Number(e.target.value))}
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="">multiplier: {multiplier}</label>
-            <input
-              type="range"
-              min={0}
-              max={1000}
-              step={10}
-              value={multiplier}
-              onChange={(e) => setMultiplier(Number(e.target.value))}
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="">offset: {offset}</label>
-            <input
-              type="range"
-              min={0}
-              max={1000}
-              step={10}
-              value={offset}
-              onChange={(e) => setOffset(Number(e.target.value))}
-            />
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center h-full">
-        <div
-          ref={ref}
-          className="relative w-full h-[400px] overflow-scroll bg-red-100"
-        >
-          <motion.div
-            className="relative bg-green-100"
-            style={{ top: scrollY, height: "400px" }}
+      <ConfigProvider>
+        <div className="flex items-center h-full">
+          <div
+            ref={ref}
+            className="relative w-full h-[400px] overflow-scroll bg-red-100 scroll-snap-container"
           >
-            {Array.from({ length: ITEM_COUNT }).map((_, i) => (
-              <Item key={i} index={i} scrollYProgress={scrollYProgress} />
-            ))}
-          </motion.div>
-          <div style={{ height: `${ITEM_HEIGHT * ITEM_COUNT}px` }}></div>
+            <motion.div
+              className="relative top-0 bg-green-100"
+              style={{ top: scrollY, height: "400px" }}
+            >
+              {Array.from({ length: ITEM_COUNT }).map((_, i) => (
+                <Item key={i} index={i} scrollYProgress={scrollYProgress} />
+              ))}
+            </motion.div>
+            <div style={{ height: `${ITEM_COUNT * ITEM_HEIGHT}px` }}></div>
+          </div>
         </div>
-      </div>
+      </ConfigProvider>
     </div>
   );
 };
