@@ -80,12 +80,12 @@ export const Chat = () => {
   );
 
   return (
-    <div className="container max-w-2xl mx-auto h-full">
+    <div className="container max-w-2xl mx-auto h-screen">
       <ConfigProvider>
         <div className="flex items-center h-full">
           <div
             ref={ref}
-            className="relative w-full h-[400px] overflow-scroll bg-red-100 scroll-snap-container"
+            className="relative w-full h-[400px] overflow-scroll bg-red-100 scroll-snap-container no-scrollbar"
           >
             {Array.from({ length: ITEM_COUNT }).map((_, i) => (
               <Item key={i} index={i} scrollYProgress={scrollYProgress} />
