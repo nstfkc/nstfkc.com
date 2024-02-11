@@ -2,7 +2,7 @@ import { Chat } from "./components/Chat";
 
 const ChatUI = () => {
   return (
-    <div className="w-screen h-screen overflow-hidden">
+    <div className="w-screen h-dvh bg-green-100 overflow-hidden">
       <Chat />
     </div>
   );

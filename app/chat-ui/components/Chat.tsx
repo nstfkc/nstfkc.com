@@ -14,7 +14,7 @@ const Channel = (props: { id: string }) => {
   return (
     <div className="py-2">
       <div className="border p-4 rounded-xl bg-white/80 shadow-md backdrop-blur-[4px]">
-        <div>#General {props.id}</div>
+        <div>#Channel {props.id}</div>
         <div className="flex gap-2 h-0 overflow-hidden">
           <div className="size-12 min-w-12 flex rounded-md bg-stone-800"></div>
           <div className="flex flex-col">
@@ -80,12 +80,12 @@ export const Chat = () => {
   );
 
   return (
-    <div className="container max-w-2xl mx-auto h-screen">
-      <ConfigProvider>
-        <div className="flex items-center h-full">
+    <ConfigProvider>
+      <div className="container max-w-2xl px-2 mx-auto h-dvh overflow-hidden">
+        <div className="flex items-center justify-center h-full">
           <div
             ref={ref}
-            className="relative w-full h-[400px] overflow-scroll bg-red-100 scroll-snap-container no-scrollbar"
+            className="relative w-full h-[400px] overflow-scroll scroll-snap-container no-scrollbar"
           >
             {Array.from({ length: ITEM_COUNT }).map((_, i) => (
               <Item key={i} index={i} scrollYProgress={scrollYProgress} />
@@ -93,8 +93,8 @@ export const Chat = () => {
             <ScrollSnapChild />
           </div>
         </div>
-      </ConfigProvider>
-    </div>
+      </div>
+    </ConfigProvider>
   );
 };
 
