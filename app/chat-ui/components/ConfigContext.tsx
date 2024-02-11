@@ -29,7 +29,7 @@ export const ConfigProvider = ({
         offset,
       }}
     >
-      <div>
+      <div className="hidden">
         <div className="container max-w-4xl mx-auto">
           <div className="flex flex-col gap-1">
             <label htmlFor="">a: {a}</label>
