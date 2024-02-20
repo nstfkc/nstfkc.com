@@ -20,6 +20,8 @@ export const Button = forwardRef<HTMLButtonElement, ComponentProps<"button">>(
   }
 );
 
+Button.displayName = "Button";
+
 const options = [
   {
     key: "damping",
@@ -121,7 +123,8 @@ export const DialogSection = (
           {options.map((option) => (
             <div key={option.key} className="flex flex-col max-w-md">
               <label htmlFor={option.key} className="font-semibold">
-                {option.label}: {springOptions[option.key]}
+                {option.label}:{" "}
+                {springOptions[option.key as keyof SpringOptions]}
               </label>
               <p>{option.description}</p>
               <input
@@ -130,7 +133,7 @@ export const DialogSection = (
                 min={option.min}
                 max={option.max}
                 step={option.step}
-                value={springOptions[option.key]}
+                value={springOptions[option.key as keyof SpringOptions]}
                 onChange={(e) =>
                   handleUpdateSpringOptions(
                     option.key as keyof SpringOptions,
