@@ -1,6 +1,5 @@
 import attio from "../public/assets/attio.png";
 import recessedSegmentControl from "../public/assets/recessed-segment-control.png";
-
 import recessed_segment_control from "../public/assets/recessed-segment-control.png";
 import banking_app from "../public/assets/banking-app.png";
 import register from "../public/assets/register.png";
