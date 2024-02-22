@@ -1,11 +1,23 @@
 import { Toaster } from "sonner";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import { readFile } from "fs/promises";
 
 import { AdvancedDialog } from "./components/AdvancedDialog";
 import { AsyncDialog } from "./components/AsyncDialog";
 import { SimpleDialog } from "./components/SimpleDialog";
 import Link from "next/link";
 
-export default function Page(props: any) {
+export default async function PageX() {
+  const buffer = await readFile("./mdx/blog/modal.mdx");
+  const source = buffer.toString();
+  return (
+    <div className="prose mx-auto">
+      <MDXRemote source={source} />;
+    </div>
+  );
+}
+
+export function Page(props: any) {
   return (
     <div className="bg-slate-200 min-h-screen">
       <div className="container max-w-3xl mx-auto py-8">
