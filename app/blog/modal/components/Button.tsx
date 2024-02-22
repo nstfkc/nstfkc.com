@@ -7,7 +7,11 @@ export const Button = forwardRef<HTMLButtonElement, ComponentProps<"button">>(
       <button
         ref={ref}
         {...rest}
-        className="bg-stone-900 text-white px-4 py-2 rounded-md tracking-wide font-medium shadow-md text-sm active:scale-[0.97] transition-all"
+        className={[
+          "bg-stone-900 text-white px-4 py-2 rounded-md tracking-wide font-medium",
+          "shadow-md text-sm active:scale-[0.97] transition-all",
+          "disabled:opacity-50",
+        ].join(" ")}
       >
         {children}
       </button>

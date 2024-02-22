@@ -2,6 +2,27 @@ import { useState } from "react";
 import { Button } from "./Button";
 import { Dialog, DialogApi, DialogClose, DialogTitle } from "./Dialog";
 
+const Form = () => {
+  return (
+    <form>
+      <div className="flex flex-col gap-4">
+        <label>
+          <span>First Name</span>
+          <input type="text" />
+        </label>
+        <label>
+          <span>Last Name</span>
+          <input type="text" />
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" />
+        </label>
+      </div>
+    </form>
+  );
+};
+
 export const DialogWithForm = () => {
   const [loading, setLoading] = useState(false);
 
@@ -32,15 +53,11 @@ export const DialogWithForm = () => {
             scelerisque fermentum?
           </div>
           <DialogApi>
-            {(api) => {
-              return (
-                <button
-                  onClick={() => handleFormSubmit(() => api.setOpen(false))}
-                >
-                  Close {loading && "Loading..."}
-                </button>
-              );
-            }}
+            {(dialog) => (
+              <Button onClick={() => handleFormSubmit(dialog.close)}>
+                Close {loading && "Loading..."}
+              </Button>
+            )}
           </DialogApi>
 
           <div>

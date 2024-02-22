@@ -26,13 +26,21 @@ import {
 
 interface DialogContextValue {
   isOpen: boolean;
-  setOpen: (open: boolean) => void;
+  open: VoidFunction;
+  close: VoidFunction;
+  pulse: VoidFunction;
 }
 
-const DialogContext = createContext({
+const initialContextValue: DialogContextValue = {
   isOpen: false,
-  setOpen: (open: boolean) => {},
-} as DialogContextValue);
+  open: () => {},
+  close: () => {},
+  pulse: () => {},
+};
+
+// The context allows components inside the Dialog to access the state and control the dialog
+// E.g If you want to close the dialog after a form submission, you can use the close function
+const DialogContext = createContext(initialContextValue);
 
 export const Dialog = (
   props: PropsWithChildren<{
@@ -44,16 +52,22 @@ export const Dialog = (
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const spring = useSpring(0, {
+  const mainAnimation = useSpring(0, {
     stiffness: 300,
     damping: 30,
   });
 
-  const control = useTransform(spring, [0, 100], [0, 100]);
-  const opacity = useTransform(spring, [0, 100], [0, 1]);
-  const scale = useTransform(spring, [0, 100], [0.95, 1]);
-  const translateY = useTransform(spring, [0, 100], ["30%", "-20%"]);
-  const rotateX = useTransform(spring, [0, 100], ["350deg", "360deg"]);
+  const control = useTransform(mainAnimation, [0, 100], [0, 100]);
+  const opacity = useTransform(mainAnimation, [0, 100], [0, 1]);
+  const scale = useTransform(mainAnimation, [0, 100], [0.95, 1]);
+  const translateY = useTransform(mainAnimation, [0, 100], ["30%", "-20%"]);
+
+  const wrapperAnimation = useSpring(0, {
+    stiffness: 300,
+    damping: 30,
+  });
+
+  const scaleW = useTransform(wrapperAnimation, [0, 100], [1, 1.1]);
 
   useMotionValueEvent(control, "change", (latest) => {
     if (latest === 0) {
@@ -63,23 +77,27 @@ export const Dialog = (
 
   useEffect(() => {
     if (initiallyOpen) {
-      spring.set(100);
+      mainAnimation.set(100);
       setIsOpen(true);
     }
-  }, [initiallyOpen, spring]);
+  }, [initiallyOpen, mainAnimation]);
 
   return (
     <DialogContext.Provider
       value={{
         isOpen,
-        setOpen: (open) => {
-          console.log(open);
-          if (open) {
-            spring.set(100);
-            setIsOpen(true);
-          } else {
-            spring.set(0);
-          }
+        pulse: () => {
+          wrapperAnimation.set(100);
+          setTimeout(() => {
+            wrapperAnimation.set(0);
+          }, 100);
+        },
+        open: () => {
+          mainAnimation.set(100);
+          setIsOpen(true);
+        },
+        close: () => {
+          mainAnimation.set(0);
         },
       }}
     >
@@ -88,37 +106,35 @@ export const Dialog = (
           open={isOpen}
           onOpenChange={() => {
             if (!isOpen) {
-              spring.set(100);
+              mainAnimation.set(100);
               setIsOpen(true);
             } else {
-              spring.set(0);
+              mainAnimation.set(0);
             }
           }}
         >
           <Trigger asChild={typeof trigger !== "string"}>{trigger}</Trigger>
           <Portal>
             <Content asChild>
-              <div
-                style={{ perspective: "200px" }}
-                className="fixed w-full h-full inset-0 z-[9999] flex items-center justify-center"
-              >
+              <div className="fixed w-full h-full inset-0 z-[9999] flex items-center justify-center">
                 <Overlay asChild>
                   <motion.div
                     style={{ opacity }}
-                    onClick={() => spring.set(0)}
-                    className="fixed inset-0 z-[-1] bg-black/40 backdrop-blur-[2px]"
+                    onClick={() => mainAnimation.set(0)}
+                    className="fixed inset-0 z-[-1] bg-black/30"
                   />
                 </Overlay>
-                <motion.div
-                  layout
-                  style={{
-                    opacity,
-                    scale,
-                    translateY,
-                    rotateX,
-                  }}
-                >
-                  {children}
+                <motion.div style={{ scale: scaleW }}>
+                  <motion.div
+                    layout
+                    style={{
+                      opacity,
+                      scale,
+                      translateY,
+                    }}
+                  >
+                    {children}
+                  </motion.div>
                 </motion.div>
               </div>
             </Content>
@@ -129,13 +145,8 @@ export const Dialog = (
   );
 };
 
-export const DialogApi = (props: {
-  children: (api: DialogContextValue) => JSX.Element;
-}) => {
-  const { children } = props;
-  const api = useContext(DialogContext);
-
-  return <>{children(api)}</>;
+export const useDialog = () => {
+  return useContext(DialogContext);
 };
 
 export const DialogClose = Close;
