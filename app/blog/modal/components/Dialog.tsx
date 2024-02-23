@@ -50,54 +50,52 @@ export const Dialog = (
 ) => {
   const { children, trigger, initiallyOpen = false } = props;
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initiallyOpen);
 
-  const mainAnimation = useSpring(0, {
+  const mainSpring = useSpring(0, {
     stiffness: 300,
     damping: 30,
   });
 
-  const control = useTransform(mainAnimation, [0, 100], [0, 100]);
-  const opacity = useTransform(mainAnimation, [0, 100], [0, 1]);
-  const scale = useTransform(mainAnimation, [0, 100], [0.95, 1]);
-  const translateY = useTransform(mainAnimation, [0, 100], ["30%", "-20%"]);
+  const opacity = useTransform(mainSpring, [0, 100], [0, 1]);
+  const scale = useTransform(mainSpring, [0, 100], [0.95, 1]);
+  const translateY = useTransform(mainSpring, [0, 100], ["30%", "0%"]);
 
-  const wrapperAnimation = useSpring(0, {
+  const wrapperSpring = useSpring(0, {
     stiffness: 300,
     damping: 30,
   });
 
-  const scaleW = useTransform(wrapperAnimation, [0, 100], [1, 1.1]);
+  const scalePulse = useTransform(wrapperSpring, [0, 100], [1, 1.1]);
 
-  useMotionValueEvent(control, "change", (latest) => {
+  useMotionValueEvent(opacity, "change", (latest) => {
     if (latest === 0) {
       setIsOpen(false);
     }
   });
 
   useEffect(() => {
-    if (initiallyOpen) {
-      mainAnimation.set(100);
-      setIsOpen(true);
+    if (isOpen) {
+      mainSpring.set(100);
     }
-  }, [initiallyOpen, mainAnimation]);
+  }, [isOpen, mainSpring]);
 
   return (
     <DialogContext.Provider
       value={{
         isOpen,
         pulse: () => {
-          wrapperAnimation.set(100);
+          wrapperSpring.set(100);
           setTimeout(() => {
-            wrapperAnimation.set(0);
+            wrapperSpring.set(0);
           }, 100);
         },
         open: () => {
-          mainAnimation.set(100);
+          mainSpring.set(100);
           setIsOpen(true);
         },
         close: () => {
-          mainAnimation.set(0);
+          mainSpring.set(0);
         },
       }}
     >
@@ -106,10 +104,9 @@ export const Dialog = (
           open={isOpen}
           onOpenChange={() => {
             if (!isOpen) {
-              mainAnimation.set(100);
               setIsOpen(true);
             } else {
-              mainAnimation.set(0);
+              mainSpring.set(0);
             }
           }}
         >
@@ -120,13 +117,12 @@ export const Dialog = (
                 <Overlay asChild>
                   <motion.div
                     style={{ opacity }}
-                    onClick={() => mainAnimation.set(0)}
+                    onClick={() => mainSpring.set(0)}
                     className="fixed inset-0 z-[-1] bg-black/30"
                   />
                 </Overlay>
-                <motion.div style={{ scale: scaleW }}>
+                <motion.div style={{ scale: scalePulse }}>
                   <motion.div
-                    layout
                     style={{
                       opacity,
                       scale,

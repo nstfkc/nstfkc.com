@@ -56,11 +56,13 @@ const SignInForm = () => {
 
 export const AsyncDialog = () => {
   return (
-    <Dialog trigger={<button>Open</button>}>
-      <div className="p-6 bg-white shadow-md rounded-xl max-w-md w-[300px] flex flex-col gap-6">
-        <DialogTitle className="font-semibold text-lg">Sign In</DialogTitle>
-        <hr />
-        <SignInForm />
+    <Dialog trigger={<Button>Login</Button>}>
+      <div className="w-screen md:w-[400px] px-4 md:px-0">
+        <div className="p-6 bg-white shadow-md rounded-xl flex flex-col gap-6">
+          <DialogTitle className="font-semibold text-lg">Sign In</DialogTitle>
+          <hr />
+          <SignInForm />
+        </div>
       </div>
     </Dialog>
   );

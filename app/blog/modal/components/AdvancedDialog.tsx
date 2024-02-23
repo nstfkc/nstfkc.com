@@ -62,13 +62,15 @@ const CreateTaskForm = () => {
 
 export const AdvancedDialog = () => {
   return (
-    <Dialog trigger={<button>Open</button>}>
-      <div className="p-6 bg-white shadow-md rounded-xl max-w-lg w-[700px] flex flex-col gap-6">
-        <DialogTitle className="font-semibold text-lg">
-          Create new issue
-        </DialogTitle>
-        <hr />
-        <CreateTaskForm />
+    <Dialog trigger={<Button>Open</Button>}>
+      <div className="w-screen p-4 md:p-0 md:w-[700px]">
+        <div className="p-6 bg-white shadow-md rounded-xl flex flex-col gap-6">
+          <DialogTitle className="font-semibold text-lg">
+            Create new issue
+          </DialogTitle>
+          <hr />
+          <CreateTaskForm />
+        </div>
       </div>
     </Dialog>
   );

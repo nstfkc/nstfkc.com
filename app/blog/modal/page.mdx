@@ -1,0 +1,647 @@
+import { AdvancedDialog } from "./components/AdvancedDialog";
+import { AsyncDialog } from "./components/AsyncDialog";
+import { BasicDialog } from "./components/BasicDialog";
+
+# Dialogs (a.k.a Modals)
+
+A Modal is a tool to acquire user focus and direct it a narrower space to make desired action easier to perform for the user.
+
+When modals suddenly appear and disappear, it makes it harder for user to reason about what is really going on. User needs visual feedback from the UI to acknowledge if they performed the action successfully or not. Usually, opening a modal is not a problem because animating a mounting element is easy to do with CSS animations. It will trigger as soon as the element is being added to the DOM.
+
+
+On the other hand, the exit animations are often neglected because it is harder to implement. The elements need to be removed from the DOM after the animations are finished. And it is not possible to know when is a CSS animation is finished in javascript.
+
+## Implementation
+
+`@radix-ui/react-dialog` is going the be the starting point. It already provides all the functionalities and accessiblity for a basic dialog. What we need to do is to add some logic to control opening and closing the dialog so we can control when the animations run.
+
+### Initial dialog
+In this stage, we prepare our Dialog component. The `Dialog` component now takes only two props `children` to render the content of the dialog and `trigger` to render the component that triggers opening the dialog. 
+
+`trigger` prop can be either a `string` or `JSX.Element`. If it is a `string` radix dialog component renders a button that handles the opening of the dialog. But in reality we would want to render our custom button component for the trigger. That's why `JSX.Element` is being added as an option.
+
+> Note: When the children of the `Trigger` component is a `JSX.Element` we need to pass `asChild={true}` prop. And the children component has to be wrapped with `forwardRef` to function.
+
+
+<CodeCollapse>
+```tsx
+import {
+  Root,
+  Content,
+  Trigger,
+  Portal,
+  Overlay,
+  Title,
+  Description,
+  Close,
+} from "@radix-ui/react-dialog";
+
+interface DialogProps {
+  trigger: JSX.Element | string
+}
+
+export const Dialog = (props: PropsWithChildren<DialogProps>) => {
+  const { children, trigger } = props
+  return (
+    <Root>
+      <Trigger asChild={typeof trigger !== 'string'}>
+        {trigger}
+      </Trigger>
+      <Portal>
+        <Overlay />
+        <Content>
+          {children}   
+        </Content>
+      </Portal>
+    </Root>
+  )
+}
+
+```
+</CodeCollapse>
+
+### Controlling the modal opening and closing state
+
+In order to be able to run the animations we need to control when the dialog content is being mounted and unmounted. For this we add our own state using `useState`. And we add `isInitallyOpen` prop to be able to make the dialog being initally opened. We make it optional and assign `false` as the default value because most of the time it will be closed.
+
+```tsx
+import {
+  Root,
+  Content,
+  Trigger,
+  Portal,
+  Overlay,
+  Title,
+  Description,
+  Close,
+} from "@radix-ui/react-dialog";
+
+interface DialogProps {
+  trigger: JSX.Element | string
+  isInitallyOpen?: boolean;
+}
+
+export const Dialog = (props: PropsWithChildren<DialogProps>) => {
+  const { children, trigger, isInitallyOpen = false } = props
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Root open={isOpen} onOpenChange={(isOpen) => setIsOpen(true)}>
+      <Trigger asChild={typeof trigger !== 'string'}>
+        {trigger}
+      </Trigger>
+      <Portal>
+        <Overlay />
+        <Content>
+          {children}   
+        </Content>
+      </Portal>
+    </Root>
+  )
+}
+```
+
+### Adding styles to make the dialog visually work
+In this stage we will add some styling to be able to see the dialog visually. The `<Overlay />` component is responsible for creating a layer on top of the actual content, it usually is darker and translucent, so users can recognise they are on a different layer in `z` axis and they can see the content behind the dialog.
+
+When `Overlay` component is being clicked, the dialog closes.
+
+`Content` component is responsible for rendering the content we want to show inside the dialog. It is "only" being mounted to the DOM when the dialog is being opened.
+
+```tsx
+import {
+  Root,
+  Content,
+  Trigger,
+  Portal,
+  Overlay,
+  Title,
+  Description,
+  Close,
+} from "@radix-ui/react-dialog";
+
+interface DialogProps {
+  trigger: JSX.Element | string
+  isInitallyOpen?: boolean;
+}
+
+export const Dialog = (props: PropsWithChildren<DialogProps>) => {
+  const { children, trigger, isInitallyOpen = false } = props
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Root open={isOpen} onOpenChange={(isOpen) => setIsOpen(true)}>
+      <Trigger asChild={typeof trigger !== 'string'}>
+        {trigger}
+      </Trigger>
+      <Portal>
+        <Overlay className="fixed inset-0 z-[-1] bg-black/30" />
+        <Content className="fixed w-full h-full inset-0 z-[9999] flex items-center justify-center">
+          {children}   
+        </Content>
+      </Portal>
+    </Root>
+  )
+}
+```
+
+### Opening and closing animations
+
+We will use spring animations to make the animations feel more natural. For this purpose we will use `useSpring` hook to create a motion value and we can translate it to style values using `useTranslate` hook.
+
+e.g
+```tsx
+
+const spring = useSpring(0)
+const opacity = useTranslate(spring, [0, 100], [0, 1]);
+
+```
+
+In this example when we call `spring.set(100)`, the `opacity` value is going to increase fast at first and the it will slow down in the end and finally will stop.
+
+This is exactly what we want for our modal animation.
+
+If you check the type of `opacity` you will see it is `MotionValue<number>`, so it is a special property only `framer-motion` components can use (`motion.div`). So in order to be able to use the motion values we will change the components we want to animate with `motion.div`.
+
+In this example, the dialog content will have 3 animations. It will fade in (opacity), scale up (scale) and move up (translateY). And the overlay will only have fade in (opacity) animation.
+
+```tsx
+import {
+  Root,
+  Content,
+  Trigger,
+  Portal,
+  Overlay,
+  Title,
+  Description,
+  Close,
+} from "@radix-ui/react-dialog";
+
+import {
+  motion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+
+interface DialogProps {
+  trigger: JSX.Element | string
+  isInitallyOpen?: boolean;
+}
+
+export const Dialog = (props: PropsWithChildren<DialogProps>) => {
+  const { children, trigger, isInitallyOpen = false } = props
+  const [isOpen, setIsOpen] = useState(false);
+
+  const spring = useSpring(0, {
+    stiffness: 300,
+    damping: 30,
+  });
+
+  const opacity = useTransform(spring, [0, 100], [0, 1]);
+  const scale = useTransform(spring, [0, 100], [0.95, 1]);
+  const translateY = useTransform(spring, [0, 100], ["30%", "-50%"]);
+  
+  return (
+    <Root open={isOpen} onOpenChange={(isOpen) => setIsOpen(true)}>
+      <Trigger asChild={typeof trigger !== 'string'}>
+        {trigger}
+      </Trigger>
+      <Portal>
+        <Overlay asChild>
+          <motion.div
+            style={{ opacity }}
+            className="fixed inset-0 z-[-1] bg-black/30"
+          />
+        </Overlay>
+        <Content className="fixed w-full h-full inset-0 z-[9999] flex items-center justify-center">
+          <motion.div
+            style={{
+              opacity,
+              scale,
+              translateY,
+            }}
+          >
+            {children}
+          </motion.div>
+        </Content>
+      </Portal>
+    </Root>
+  )
+}
+```
+
+### Running the animations
+
+At this point all of the animations are bound to the `spring`. It means their value changes when the `spring` value change. To run the opening animation we need to set the spring value to `100` and for the closing animation we need to set it to `0`.
+
+We set the `spring` value to `100` when the `isOpen` state is set to `true`, because we want the animations to run as soon as the dialog is being mounted. However we want to wait for the animations finished before the dialog is being unmounted. That's why we first set `isOpen` to true and use `useEffect` to set the `spring` value to `100` when `isOpen` is true. And for the closing animations we set the `spring` value to `0` first and then set `isOpen` to false when an animation value hits to `0` using `useMotionValueEvent` hook.
+
+> In the following example, we track `opacity` value using `useMotionValueEvent` hook, the reason it is being used for this purpose is that its value reflects the state of the dialog. When the dialog is closed its value is `0` and its value is `1` when the dialog is open.
+
+```tsx
+import {
+  Root,
+  Content,
+  Trigger,
+  Portal,
+  Overlay,
+  Title,
+  Description,
+  Close,
+} from "@radix-ui/react-dialog";
+
+import {
+  motion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+
+interface DialogProps {
+  trigger: JSX.Element | string
+  isInitallyOpen?: boolean;
+}
+export const Dialog = (props: PropsWithChildren<DialogProps>) => {
+  const { children, trigger, isInitallyOpen = false } = props
+  const [isOpen, setIsOpen] = useState(false);
+
+  const spring = useSpring(0, {
+    stiffness: 300,
+    damping: 30,
+  });
+
+  const opacity = useTransform(spring, [0, 100], [0, 1]);
+  const scale = useTransform(spring, [0, 100], [0.95, 1]);
+  const translateY = useTransform(spring, [0, 100], ["30%", "-50%"]);
+  
+  useMotionValueEvent(opacity, "change", (latest) => {
+    if (latest === 0) {
+      setIsOpen(false);
+    }
+  });
+  
+  useEffect(() => {
+    if (isOpen) {
+      spring.set(100);
+    }
+  }, [isOpen, spring]);
+  
+  return (
+    <Root
+      open={isOpen} 
+      onOpenChange={() => {
+        if (!isOpen) {
+          setIsOpen(true);
+        } else {
+          spring.set(0);
+        }
+      }}>
+      <Trigger asChild={typeof trigger !== 'string'}>
+        {trigger}
+      </Trigger>
+      <Portal>
+        <Overlay asChild>
+          <motion.div
+            style={{ opacity }}
+            className="fixed inset-0 z-[-1] bg-black/30"
+          />
+        </Overlay>
+        <Content className="fixed w-full h-full inset-0 z-[9999] flex items-center justify-center">
+          <motion.div
+            style={{
+              opacity,
+              scale,
+              translateY,
+            }}
+          >
+            {children}
+          </motion.div>
+        </Content>
+      </Portal>
+    </Root>
+  )
+}
+```
+
+### Exposing the dialog api
+In some use cases you might want to access to the dialog api and close it after an asynchronous event. E.g after a form submission. To be able to achieve that the components we render inside the dialog has to access to its state and to the functions that changes its state. (See the `Async` example in the recipes secion)
+
+For this example we will use react's context api.
+
+> Note: In this step the markup changed a little bit. You see the `Overlay` component is now inside the `Content` component. This is for allowing the dialog size to be able to set by the component we render inside the dialog.
+
+```tsx
+
+import {
+  Root,
+  Content,
+  Trigger,
+  Portal,
+  Overlay,
+  Title,
+  Description,
+  Close,
+} from "@radix-ui/react-dialog";
+import {
+  motion,
+  useMotionValueEvent,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+interface DialogContextValue {
+  isOpen: boolean;
+  open: VoidFunction;
+  close: VoidFunction;
+}
+
+const initialContextValue: DialogContextValue = {
+  isOpen: false,
+  open: () => {},
+  close: () => {},
+};
+
+// The context allows components inside the Dialog to access the state and control the dialog
+// E.g If you want to close the dialog after a form submission, you can use the close function
+const DialogContext = createContext(initialContextValue);
+
+export const Dialog = (
+  props: PropsWithChildren<{
+    initiallyOpen?: boolean;
+    trigger: JSX.Element | string;
+  }>
+) => {
+  const { children, trigger, initiallyOpen = false } = props;
+
+  const [isOpen, setIsOpen] = useState(initiallyOpen);
+
+  const mainSpring = useSpring(0, {
+    stiffness: 300,
+    damping: 30,
+  });
+
+  const opacity = useTransform(mainSpring, [0, 100], [0, 1]);
+  const scale = useTransform(mainSpring, [0, 100], [0.95, 1]);
+  const translateY = useTransform(mainSpring, [0, 100], ["30%", "-50%"]);
+
+  useMotionValueEvent(opacity, "change", (latest) => {
+    if (latest === 0) {
+      setIsOpen(false);
+    }
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      mainSpring.set(100);
+    }
+  }, [isOpen, mainSpring]);
+
+  return (
+    <DialogContext.Provider
+      value={{
+        isOpen,
+        open: () => {
+          mainSpring.set(100);
+          setIsOpen(true);
+        },
+        close: () => {
+          mainSpring.set(0);
+        },
+      }}
+    >
+      <div>
+        <Root
+          open={isOpen}
+          onOpenChange={() => {
+            if (!isOpen) {
+              setIsOpen(true);
+            } else {
+              mainSpring.set(0);
+            }
+          }}
+        >
+          <Trigger asChild={typeof trigger !== "string"}>{trigger}</Trigger>
+          <Portal>
+            <Content asChild>
+              <div className="fixed w-full h-full inset-0 z-[9999] flex items-center justify-center">
+                <Overlay asChild>
+                  <motion.div
+                    style={{ opacity }}
+                    onClick={() => mainSpring.set(0)}
+                    className="fixed inset-0 z-[-1] bg-black/30"
+                  />
+                </Overlay>
+                <motion.div
+                  style={{
+                    opacity,
+                    scale,
+                    translateY,
+                  }}
+                >
+                  {children}
+                </motion.div>
+              </div>
+            </Content>
+          </Portal>
+        </Root>
+      </div>
+    </DialogContext.Provider>
+  );
+};
+
+export const useDialog = () => {
+  return useContext(DialogContext);
+};
+
+
+// We export these to allow more high level composition
+export const DialogClose = Close;
+export const DialogTrigger = Trigger;
+export const DialogTitle = Title;
+export const DialogDescription = Description;
+
+```
+
+### Final touch
+In some cases you might want to keep the modal open after user performs the action inside the dialog. For example [linear](https://linear.app) has a "Create Issue" dialog which you can keep creating issues after you submit the form. The dialog stays open and runs a pulse animation to allow users to acknowledge that their action was performed.
+
+In this step, we will create another `spring` and translate it to a style value. We will create the pulse effect by making the dialog window a little bit larger and reverting it after `500ms`.
+
+```tsx
+import {
+  Root,
+  Content,
+  Trigger,
+  Portal,
+  Overlay,
+  Title,
+  Description,
+  Close,
+} from "@radix-ui/react-dialog";
+import {
+  motion,
+  useMotionValueEvent,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+interface DialogContextValue {
+  isOpen: boolean;
+  open: VoidFunction;
+  close: VoidFunction;
+  pulse: VoidFunction;
+}
+
+const initialContextValue: DialogContextValue = {
+  isOpen: false,
+  open: () => {},
+  close: () => {},
+  pulse: () => {},
+};
+
+// The context allows components inside the Dialog to access the state and control the dialog
+// E.g If you want to close the dialog after a form submission, you can use the close function
+const DialogContext = createContext(initialContextValue);
+
+export const Dialog = (
+  props: PropsWithChildren<{
+    initiallyOpen?: boolean;
+    trigger: JSX.Element | string;
+  }>
+) => {
+  const { children, trigger, initiallyOpen = false } = props;
+
+  const [isOpen, setIsOpen] = useState(initiallyOpen);
+
+  const mainSpring = useSpring(0, {
+    stiffness: 300,
+    damping: 30,
+  });
+
+  const opacity = useTransform(mainSpring, [0, 100], [0, 1]);
+  const scale = useTransform(mainSpring, [0, 100], [0.95, 1]);
+  const translateY = useTransform(mainSpring, [0, 100], ["30%", "-50%"]);
+
+  const wrapperSpring = useSpring(0, {
+    stiffness: 300,
+    damping: 30,
+  });
+
+  const scalePulse = useTransform(wrapperSpring, [0, 100], [1, 1.1]);
+
+  useMotionValueEvent(opacity, "change", (latest) => {
+    if (latest === 0) {
+      setIsOpen(false);
+    }
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      mainSpring.set(100);
+    }
+  }, [isOpen, mainSpring]);
+
+  return (
+    <DialogContext.Provider
+      value={{
+        isOpen,
+        pulse: () => {
+          wrapperSpring.set(100);
+          setTimeout(() => {
+            wrapperSpring.set(0);
+          }, 100);
+        },
+        open: () => {
+          mainSpring.set(100);
+          setIsOpen(true);
+        },
+        close: () => {
+          mainSpring.set(0);
+        },
+      }}
+    >
+      <div>
+        <Root
+          open={isOpen}
+          onOpenChange={() => {
+            if (!isOpen) {
+              setIsOpen(true);
+            } else {
+              mainSpring.set(0);
+            }
+          }}
+        >
+          <Trigger asChild={typeof trigger !== "string"}>{trigger}</Trigger>
+          <Portal>
+            <Content asChild>
+              <div className="fixed w-full h-full inset-0 z-[9999] flex items-center justify-center">
+                <Overlay asChild>
+                  <motion.div
+                    style={{ opacity }}
+                    onClick={() => mainSpring.set(0)}
+                    className="fixed inset-0 z-[-1] bg-black/30"
+                  />
+                </Overlay>
+                <motion.div style={{ scale: scalePulse }}>
+                  <motion.div
+                    style={{
+                      opacity,
+                      scale,
+                      translateY,
+                    }}
+                  >
+                    {children}
+                  </motion.div>
+                </motion.div>
+              </div>
+            </Content>
+          </Portal>
+        </Root>
+      </div>
+    </DialogContext.Provider>
+  );
+};
+
+export const useDialog = () => {
+  return useContext(DialogContext);
+};
+
+export const DialogClose = Close;
+export const DialogTrigger = Trigger;
+export const DialogTitle = Title;
+export const DialogDescription = Description;
+```
+
+## Recipes
+
+### Basic
+A simple dialog that shows a message
+<BasicDialog />
+
+### Async
+Dialog closes after the form submission
+<AsyncDialog />
+
+### Advanced
+Dialog can be set to stay open, and runs a pulse animation after the action is being performed.
+
+<AdvancedDialog />
+
+
+## References
+
+- Radix ui dialog - [https://www.radix-ui.com/primitives/docs/components/dialog](https://www.radix-ui.com/primitives/docs/components/dialog)
+- Framer motion - [https://www.framer.com/motion/use-spring/](https://www.framer.com/motion/use-spring/)
