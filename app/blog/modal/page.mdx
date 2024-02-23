@@ -2,11 +2,11 @@ import { AdvancedDialog } from "./components/AdvancedDialog";
 import { AsyncDialog } from "./components/AsyncDialog";
 import { BasicDialog } from "./components/BasicDialog";
 
-# Dialogs (a.k.a Modals)
+# Dialog (Modal)
 
-A Modal is a tool to acquire user focus and direct it a narrower space to make desired action easier to perform for the user.
+A dialog is a tool to acquire user focus and direct it a narrower space to make desired action easier to perform for the user.
 
-When modals suddenly appear and disappear, it makes it harder for user to reason about what is really going on. User needs visual feedback from the UI to acknowledge if they performed the action successfully or not. Usually, opening a modal is not a problem because animating a mounting element is easy to do with CSS animations. It will trigger as soon as the element is being added to the DOM.
+When dialogs suddenly appear and disappear, it makes it harder for user to reason about what is really going on. User needs visual feedback from the UI to acknowledge if they performed the action successfully or not. Usually, opening a dialog is not a problem because animating a mounting element is easy to do with CSS animations. It will trigger as soon as the element is being added to the DOM.
 
 
 On the other hand, the exit animations are often neglected because it is harder to implement. The elements need to be removed from the DOM after the animations are finished. And it is not possible to know when is a CSS animation is finished in javascript.
@@ -60,10 +60,12 @@ export const Dialog = (props: PropsWithChildren<DialogProps>) => {
 ```
 </CodeCollapse>
 
-### Controlling the modal opening and closing state
+### Controlling the dialog opening and closing state
 
 In order to be able to run the animations we need to control when the dialog content is being mounted and unmounted. For this we add our own state using `useState`. And we add `isInitallyOpen` prop to be able to make the dialog being initally opened. We make it optional and assign `false` as the default value because most of the time it will be closed.
 
+
+<CodeCollapse>
 ```tsx
 import {
   Root,
@@ -100,6 +102,7 @@ export const Dialog = (props: PropsWithChildren<DialogProps>) => {
   )
 }
 ```
+</CodeCollapse>
 
 ### Adding styles to make the dialog visually work
 In this stage we will add some styling to be able to see the dialog visually. The `<Overlay />` component is responsible for creating a layer on top of the actual content, it usually is darker and translucent, so users can recognise they are on a different layer in `z` axis and they can see the content behind the dialog.
@@ -108,6 +111,7 @@ When `Overlay` component is being clicked, the dialog closes.
 
 `Content` component is responsible for rendering the content we want to show inside the dialog. It is "only" being mounted to the DOM when the dialog is being opened.
 
+<CodeCollapse>
 ```tsx
 import {
   Root,
@@ -144,6 +148,7 @@ export const Dialog = (props: PropsWithChildren<DialogProps>) => {
   )
 }
 ```
+</CodeCollapse>
 
 ### Opening and closing animations
 
@@ -159,12 +164,13 @@ const opacity = useTranslate(spring, [0, 100], [0, 1]);
 
 In this example when we call `spring.set(100)`, the `opacity` value is going to increase fast at first and the it will slow down in the end and finally will stop.
 
-This is exactly what we want for our modal animation.
+This is exactly what we want for our dialog animation.
 
 If you check the type of `opacity` you will see it is `MotionValue<number>`, so it is a special property only `framer-motion` components can use (`motion.div`). So in order to be able to use the motion values we will change the components we want to animate with `motion.div`.
 
 In this example, the dialog content will have 3 animations. It will fade in (opacity), scale up (scale) and move up (translateY). And the overlay will only have fade in (opacity) animation.
 
+<CodeCollapse>
 ```tsx
 import {
   Root,
@@ -229,6 +235,7 @@ export const Dialog = (props: PropsWithChildren<DialogProps>) => {
   )
 }
 ```
+</CodeCollapse>
 
 ### Running the animations
 
@@ -238,6 +245,7 @@ We set the `spring` value to `100` when the `isOpen` state is set to `true`, bec
 
 > In the following example, we track `opacity` value using `useMotionValueEvent` hook, the reason it is being used for this purpose is that its value reflects the state of the dialog. When the dialog is closed its value is `0` and its value is `1` when the dialog is open.
 
+<CodeCollapse>
 ```tsx
 import {
   Root,
@@ -321,6 +329,7 @@ export const Dialog = (props: PropsWithChildren<DialogProps>) => {
   )
 }
 ```
+</CodeCollapse>
 
 ### Exposing the dialog api
 In some use cases you might want to access to the dialog api and close it after an asynchronous event. E.g after a form submission. To be able to achieve that the components we render inside the dialog has to access to its state and to the functions that changes its state. (See the `Async` example in the recipes secion)
@@ -329,8 +338,8 @@ For this example we will use react's context api.
 
 > Note: In this step the markup changed a little bit. You see the `Overlay` component is now inside the `Content` component. This is for allowing the dialog size to be able to set by the component we render inside the dialog.
 
+<CodeCollapse>
 ```tsx
-
 import {
   Root,
   Content,
@@ -467,12 +476,15 @@ export const DialogTitle = Title;
 export const DialogDescription = Description;
 
 ```
+</CodeCollapse>
 
 ### Final touch
-In some cases you might want to keep the modal open after user performs the action inside the dialog. For example [linear](https://linear.app) has a "Create Issue" dialog which you can keep creating issues after you submit the form. The dialog stays open and runs a pulse animation to allow users to acknowledge that their action was performed.
+In some cases you might want to keep the dialog open after user performs the action inside the dialog. For example [linear](https://linear.app) has a "Create Issue" dialog which you can keep creating issues after you submit the form. The dialog stays open and runs a pulse animation to allow users to acknowledge that their action was performed.
 
 In this step, we will create another `spring` and translate it to a style value. We will create the pulse effect by making the dialog window a little bit larger and reverting it after `500ms`.
 
+
+<CodeCollapse>
 ```tsx
 import {
   Root,
@@ -624,6 +636,7 @@ export const DialogTrigger = Trigger;
 export const DialogTitle = Title;
 export const DialogDescription = Description;
 ```
+</CodeCollapse>
 
 ## Recipes
 

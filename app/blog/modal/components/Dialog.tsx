@@ -66,7 +66,7 @@ export const Dialog = (
     damping: 30,
   });
 
-  const scalePulse = useTransform(wrapperSpring, [0, 100], [1, 1.1]);
+  const scalePulse = useTransform(wrapperSpring, [0, 100], [1, 1.05]);
 
   useMotionValueEvent(opacity, "change", (latest) => {
     if (latest === 0) {

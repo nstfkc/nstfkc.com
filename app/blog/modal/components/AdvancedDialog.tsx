@@ -32,12 +32,24 @@ const CreateTaskForm = () => {
       <div className="flex flex-col">
         <input
           ref={inputRef}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.metaKey) {
+              e.preventDefault();
+              handleSignIn(e);
+            }
+          }}
           placeholder="Issue title"
           className="outline-none text-lg font-semibold placeholder:font-bold"
         />
       </div>
       <div className="flex flex-col">
         <textarea
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.metaKey) {
+              e.preventDefault();
+              handleSignIn(e);
+            }
+          }}
           placeholder="Add description"
           className="outline-none resize-none"
         />
