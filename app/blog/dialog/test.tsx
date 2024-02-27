@@ -12,7 +12,7 @@ export default async function PageX() {
   const source = buffer.toString();
   return (
     <div className="prose mx-auto">
-      <MDXRemote source={source} />;
+      <MDXRemote components={{}} source={source} />;
     </div>
   );
 }
