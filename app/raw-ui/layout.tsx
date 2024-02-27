@@ -14,6 +14,9 @@ export default function Layout(props: { children: React.ReactNode }) {
           <li>
             <Link href="/raw-ui/dialog">Dialog</Link>
           </li>
+          <li>
+            <Link href="/raw-ui/collapsible">Collapsible</Link>
+          </li>
         </ul>
       </aside>
       <div>{props.children}</div>
