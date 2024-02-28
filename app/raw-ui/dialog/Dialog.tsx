@@ -11,6 +11,7 @@ import {
   Close,
 } from "@radix-ui/react-dialog";
 import {
+  MotionValue,
   motion,
   useMotionValueEvent,
   useSpring,
@@ -18,7 +19,9 @@ import {
 } from "framer-motion";
 import {
   createContext,
+  Dispatch,
   PropsWithChildren,
+  SetStateAction,
   useContext,
   useEffect,
   useState,
@@ -28,27 +31,18 @@ interface DialogContextValue {
   isOpen: boolean;
   open: VoidFunction;
   close: VoidFunction;
-  pulse: VoidFunction;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  mainSpring: MotionValue<number>;
 }
 
-const initialContextValue: DialogContextValue = {
-  isOpen: false,
-  open: () => {},
-  close: () => {},
-  pulse: () => {},
-};
-
-// The context allows components inside the Dialog to access the state and control the dialog
-// E.g If you want to close the dialog after a form submission, you can use the close function
-const DialogContext = createContext(initialContextValue);
+const DialogContext = createContext({} as DialogContextValue);
 
 export const Dialog = (
   props: PropsWithChildren<{
     initiallyOpen?: boolean;
-    trigger: JSX.Element | string;
   }>
 ) => {
-  const { children, trigger, initiallyOpen = false } = props;
+  const { children, initiallyOpen = false } = props;
 
   const [isOpen, setIsOpen] = useState(initiallyOpen);
 
@@ -57,16 +51,59 @@ export const Dialog = (
     damping: 30,
   });
 
+  return (
+    <DialogContext.Provider
+      value={{
+        isOpen,
+        setIsOpen,
+        open: () => {
+          mainSpring.set(100);
+          setIsOpen(true);
+        },
+        close: () => {
+          mainSpring.set(0);
+        },
+        mainSpring,
+      }}
+    >
+      <Root
+        open={isOpen}
+        onOpenChange={() => {
+          if (!isOpen) {
+            setIsOpen(true);
+          } else {
+            mainSpring.set(0);
+          }
+        }}
+      >
+        <>{children}</>
+      </Root>
+    </DialogContext.Provider>
+  );
+};
+
+interface DialogContentProps {
+  position?: "top" | "center" | "bottom";
+}
+
+export const DialogContent = (props: PropsWithChildren<DialogContentProps>) => {
+  const { children, position = "top" } = props;
+  const { isOpen, setIsOpen, mainSpring } = useContext(DialogContext);
+
   const opacity = useTransform(mainSpring, [0, 100], [0, 1]);
-  const scale = useTransform(mainSpring, [0, 100], [0.95, 1]);
-  const translateY = useTransform(mainSpring, [0, 100], ["30%", "0%"]);
+  const scale = useTransform(mainSpring, [0, 100], [0.98, 1]);
 
-  const wrapperSpring = useSpring(0, {
-    stiffness: 300,
-    damping: 30,
-  });
+  const top = position === "center" ? "50%" : "initial";
+  const translateY0 =
+    position === "center" ? "-40%" : position === "top" ? "-85vh" : "-100%";
+  const translateY1 =
+    position === "center" ? "-50%" : position === "top" ? "-90vh" : "-110%";
 
-  const scalePulse = useTransform(wrapperSpring, [0, 100], [1, 1.05]);
+  const translateY = useTransform(
+    mainSpring,
+    [0, 100],
+    [translateY0, translateY1]
+  );
 
   useMotionValueEvent(opacity, "change", (latest) => {
     if (latest === 0) {
@@ -81,71 +118,48 @@ export const Dialog = (
   }, [isOpen, mainSpring]);
 
   return (
-    <DialogContext.Provider
-      value={{
-        isOpen,
-        pulse: () => {
-          wrapperSpring.set(100);
-          setTimeout(() => {
-            wrapperSpring.set(0);
-          }, 100);
-        },
-        open: () => {
-          mainSpring.set(100);
-          setIsOpen(true);
-        },
-        close: () => {
-          mainSpring.set(0);
-        },
-      }}
-    >
-      <div>
-        <Root
-          open={isOpen}
-          onOpenChange={() => {
-            if (!isOpen) {
-              setIsOpen(true);
-            } else {
-              mainSpring.set(0);
-            }
-          }}
-        >
-          <Trigger asChild={typeof trigger !== "string"}>{trigger}</Trigger>
-          <Portal>
-            <Content asChild>
-              <div className="fixed w-full h-full inset-0 z-[9999] flex items-center justify-center">
-                <Overlay asChild>
-                  <motion.div
-                    style={{ opacity }}
-                    onClick={() => mainSpring.set(0)}
-                    className="fixed inset-0 z-[-1] bg-black/30"
-                  />
-                </Overlay>
-                <motion.div style={{ scale: scalePulse }}>
-                  <motion.div
-                    style={{
-                      opacity,
-                      scale,
-                      translateY,
-                    }}
-                  >
-                    {children}
-                  </motion.div>
-                </motion.div>
-              </div>
-            </Content>
-          </Portal>
-        </Root>
-      </div>
-    </DialogContext.Provider>
+    <Portal>
+      <Overlay asChild>
+        <motion.div
+          style={{ opacity }}
+          onClick={() => mainSpring.set(0)}
+          className="fixed inset-0 w-full h-full bg-red-100"
+        />
+      </Overlay>
+      <Content asChild>
+        <div className="">
+          <motion.div
+            style={{
+              position: "absolute",
+              top,
+              left: "50%",
+              translateX: "-50%",
+              opacity,
+              scale,
+              translateY,
+            }}
+          >
+            {children}
+          </motion.div>
+        </div>
+      </Content>
+    </Portal>
   );
 };
 
+export const DialogTrigger = ({
+  children,
+}: {
+  children: JSX.Element | string;
+}) => {
+  return <Trigger asChild={typeof children !== "string"}>{children}</Trigger>;
+};
+
 export const useDialog = () => {
-  return useContext(DialogContext);
+  const { close, isOpen, open } = useContext(DialogContext);
+  return { close, isOpen, open };
 };
 
 export const DialogClose = Close;
-export const DialogTrigger = Trigger;
 export const DialogTitle = Title;
 export const DialogDescription = Description;

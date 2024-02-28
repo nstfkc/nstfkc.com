@@ -1,37 +1,56 @@
 import { motion } from "framer-motion";
 
 import { Root, Content, Trigger } from "@radix-ui/react-collapsible";
-import { ReactNode, useState } from "react";
+import { PropsWithChildren, createContext, useContext, useState } from "react";
 
 interface Props {
   isInitiallyOpen?: boolean;
-  slots: {
-    trigger: JSX.Element | string;
-    preview?: ReactNode;
-    content: ReactNode;
-  };
 }
 
-export const Collapsible = (props: Props) => {
-  const { slots, isInitiallyOpen = false } = props;
+interface CollapsibleContextValue {
+  isOpen: boolean;
+}
+
+const CollapsibleContext = createContext({} as CollapsibleContextValue);
+
+export const Collapsible = (props: PropsWithChildren<Props>) => {
+  const { isInitiallyOpen = false } = props;
   const [isOpen, setIsOpen] = useState(isInitiallyOpen);
 
   return (
-    <Root open={isOpen} onOpenChange={setIsOpen}>
-      <Trigger asChild={typeof slots.trigger !== "string"}>
-        {slots.trigger}
-      </Trigger>
-      {slots.preview ?? ""}
-      <Content forceMount asChild>
-        <motion.div
-          className="bg-red-100"
-          style={{ overflow: "hidden" }}
-          animate={{ height: isOpen ? "auto" : "0px" }}
-          transition={{ type: "just", duration: 0.2 }}
-        >
-          {slots.content}
-        </motion.div>
-      </Content>
-    </Root>
+    <CollapsibleContext.Provider value={{ isOpen }}>
+      <Root open={isOpen} onOpenChange={setIsOpen}>
+        {props.children}
+      </Root>
+    </CollapsibleContext.Provider>
+  );
+};
+
+export const CollapsibleContent = (props: PropsWithChildren) => {
+  const { isOpen } = useContext(CollapsibleContext);
+  return (
+    <Content forceMount asChild>
+      <motion.div
+        style={{ overflow: "hidden" }}
+        animate={{ height: isOpen ? "auto" : "0px" }}
+        transition={{
+          type: "spring",
+          bounce: isOpen ? 0.2 : 0,
+          duration: 0.3,
+        }}
+      >
+        {props.children}
+      </motion.div>
+    </Content>
+  );
+};
+
+export const CollapsibleTrigger = (props: {
+  children: JSX.Element | string;
+}) => {
+  return (
+    <Trigger asChild={typeof props.children !== "string"}>
+      {props.children}
+    </Trigger>
   );
 };

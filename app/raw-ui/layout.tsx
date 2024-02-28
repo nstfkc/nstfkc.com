@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Layout(props: { children: React.ReactNode }) {
   return (
-    <div className="flex bg-stone-50 h-screen">
+    <div className="flex bg-stone-50 h-screen bg-stone-800 text-white">
       <aside className="min-w-[200px]">
         <ul>
           <li>
@@ -10,6 +10,9 @@ export default function Layout(props: { children: React.ReactNode }) {
           </li>
           <li>
             <Link href="/raw-ui/dropdown-menu">Dropdown Menu</Link>
+          </li>
+          <li>
+            <Link href="/raw-ui/accordion">Accordion</Link>
           </li>
           <li>
             <Link href="/raw-ui/dialog">Dialog</Link>
