@@ -123,7 +123,7 @@ export const DialogContent = (props: PropsWithChildren<DialogContentProps>) => {
         <motion.div
           style={{ opacity }}
           onClick={() => mainSpring.set(0)}
-          className="fixed inset-0 w-full h-full bg-red-100"
+          className="fixed inset-0 w-full h-full bg-black/30"
         />
       </Overlay>
       <Content asChild>

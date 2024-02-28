@@ -9,6 +9,7 @@ import {
 } from "@radix-ui/react-accordion";
 import {
   ComponentProps,
+  PropsWithChildren,
   createContext,
   forwardRef,
   useContext,
@@ -26,7 +27,7 @@ export const Accordion = ({ value, ...props }: ComponentProps<typeof Root>) => {
   return (
     <AccordionContext.Provider value={{ value: _value }}>
       <Root
-        {...props}
+        {...(props as any)}
         value={_value as string | string[]}
         onValueChange={setValue}
       />
@@ -34,40 +35,60 @@ export const Accordion = ({ value, ...props }: ComponentProps<typeof Root>) => {
   );
 };
 
-interface AccordionItemProps extends ComponentProps<typeof Item> {
-  slots: {
-    header: React.ReactNode;
-    content: React.ReactNode;
-  };
+interface AccordionItemContextValue {
+  isActive: boolean;
 }
 
-export const AccordionItem = forwardRef<HTMLDivElement, AccordionItemProps>(
-  (props, ref) => {
-    const context = useContext(AccordionContext);
-    const { slots, ...rest } = props;
-    const isActive =
-      context.value.includes(props.value) || context.value === props.value;
+const AccordionItemContext = createContext({} as AccordionItemContextValue);
 
-    return (
-      <Item {...rest} ref={ref}>
-        <Header>
-          <Trigger asChild>{slots.header}</Trigger>
-        </Header>
-        <Content forceMount={true} asChild>
-          <motion.div
-            style={{ overflow: "hidden" }}
-            initial={{ height: isActive ? "auto" : 0 }}
-            animate={{ height: isActive ? "auto" : 0 }}
-            transition={{
-              type: "spring",
-              bounce: !isActive ? 0 : 0.2,
-              duration: 0.3,
-            }}
-          >
-            {slots.content}
-          </motion.div>
-        </Content>
-      </Item>
-    );
+export const AccordionItem = forwardRef<
+  HTMLDivElement,
+  ComponentProps<typeof Item>
+>((props, ref) => {
+  const context = useContext(AccordionContext);
+
+  let isActive = false;
+  if (Array.isArray(context.value)) {
+    isActive = context.value.includes(props.value);
+  } else {
+    isActive = context.value === props.value;
   }
-);
+
+  return (
+    <AccordionItemContext.Provider value={{ isActive }}>
+      <Item {...props} ref={ref} />
+    </AccordionItemContext.Provider>
+  );
+});
+
+export const AccordionItemContent = (props: PropsWithChildren) => {
+  const { isActive } = useContext(AccordionItemContext);
+  return (
+    <Content forceMount={true} asChild>
+      <motion.div
+        style={{ overflow: "hidden" }}
+        initial={{ height: isActive ? "auto" : 0 }}
+        animate={{ height: isActive ? "auto" : 0 }}
+        transition={{
+          type: "spring",
+          bounce: !isActive ? 0 : 0.2,
+          duration: 0.3,
+        }}
+      >
+        {props.children}
+      </motion.div>
+    </Content>
+  );
+};
+
+export const AccordionItemTrigger = (props: {
+  children: JSX.Element | string;
+}) => {
+  return (
+    <Header>
+      <Trigger asChild={typeof props.children !== "string"}>
+        {props.children}
+      </Trigger>
+    </Header>
+  );
+};
