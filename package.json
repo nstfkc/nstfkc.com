@@ -40,6 +40,7 @@
     "react": "canary",
     "react-dom": "canary",
     "react-icons": "^5.0.0",
+    "react-resizable-panels": "^2.0.11",
     "sonner": "^1.4.0",
     "uniqolor": "^1.1.1"
   },
