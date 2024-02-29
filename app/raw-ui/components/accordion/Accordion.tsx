@@ -61,6 +61,8 @@ export const AccordionItem = forwardRef<
   );
 });
 
+AccordionItem.displayName = "AccordionItem";
+
 export const AccordionItemContent = (props: PropsWithChildren) => {
   const { isActive } = useContext(AccordionItemContext);
   return (

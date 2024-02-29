@@ -32,7 +32,7 @@ export const AppShellSidebar = (
   const { isSidebarCollapsed } = useContext(AppShellContext);
   return (
     <>
-      <div className="h-full block fixed md:hidden w-0">
+      <div className="h-full block fixed md:hidden w-0 z-[100]">
         <motion.div
           style={{
             width,
