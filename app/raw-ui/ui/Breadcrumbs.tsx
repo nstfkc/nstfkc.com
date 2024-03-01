@@ -10,9 +10,12 @@ export const Breadcrumbs = (props: { breadcrumbs: Breadcrumb[] }) => {
   const { breadcrumbs } = props;
   const { isSidebarCollapsed, toggleSidebar } = useAppShell();
   return (
-    <div className="flex items-center gap-8 py-4 sticky top-0 bg-stone-100 text-sm font-medium">
+    <div className="flex items-center gap-8 text-sm font-medium">
       <div>
-        <button onClick={toggleSidebar} className="flex items-center">
+        <button
+          onClick={toggleSidebar}
+          className="outline-none flex items-center"
+        >
           {isSidebarCollapsed ? <LuPanelLeftOpen /> : <LuPanelLeftClose />}
         </button>
       </div>

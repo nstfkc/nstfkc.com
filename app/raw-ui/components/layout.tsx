@@ -118,10 +118,9 @@ export default function Layout(props: { children: React.ReactNode }) {
           </nav>
         </AppShellSidebar>
         <AppShellContent>
-          <div className="p-4 h-full relative">
-            <div className="px-4 bg-stone-100 rounded-xl h-full overflow-scroll">
-              <div className="prose max-w-full">{props.children}</div>
-              <div className="h-[4000px]"></div>
+          <div className="p-4 h-full">
+            <div className="prose max-w-full h-full flex flex-col gap-4">
+              {props.children}
             </div>
           </div>
         </AppShellContent>
