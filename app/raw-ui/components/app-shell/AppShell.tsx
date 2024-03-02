@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 
 interface AppShellContextValue {
@@ -77,5 +76,5 @@ export const AppShellSidebar = (
 };
 
 export const AppShellContent = (props: PropsWithChildren) => {
-  return <div className="grow h-full">{props.children}</div>;
+  return <div className="md:grow h-full">{props.children}</div>;
 };

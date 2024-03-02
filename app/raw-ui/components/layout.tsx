@@ -2,15 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconType } from "react-icons";
 import {
   LuChevronUp,
   LuHome,
-  LuLayout,
-  LuPanelLeft,
-  LuMenuSquare,
-  LuLayoutDashboard,
-  LuLayoutTemplate,
   LuPanelLeftClose,
   LuPanelLeftOpen,
 } from "react-icons/lu";
@@ -27,13 +21,9 @@ import {
   CollapsibleTrigger,
 } from "./collapsible/Collapsible";
 
-const NavigationLink = (props: {
-  href: string;
-  Icon: IconType;
-  label: string;
-}) => {
+const NavigationLink = (props: { href: string; label: string }) => {
   const pathname = usePathname();
-  const { href, Icon, label } = props;
+  const { href, label } = props;
   const isActive = href === pathname;
 
   return (
@@ -46,7 +36,6 @@ const NavigationLink = (props: {
         isActive ? "bg-black/10" : "",
       ].join(" ")}
     >
-      <Icon className="" />
       {label}
     </Link>
   );
@@ -73,44 +62,34 @@ export default function Layout(props: { children: React.ReactNode }) {
             <div>
               <NavHeader />
             </div>
-            <NavigationLink
-              href="/raw-ui/components"
-              Icon={LuHome}
-              label="Intro"
-            />
-
+            <NavigationLink href="/raw-ui/components" label="Intro" />
             <Collapsible isInitiallyOpen={true}>
               <CollapsibleTrigger>
-                <button className="group flex items-center px-2 font-semibold text-sm py-2 tracking-wide opacity-75">
+                <button className="group flex items-center gap-2 px-2 font-semibold text-xs py-2 tracking-wide opacity-75">
                   <span>Components</span>
-                  <LuChevronUp className="transition-transform group-data-[state=open]:rotate-0 group-data-[state=closed]:rotate-[180deg]" />
+                  <LuChevronUp className="stroke-[3px] transition-transform group-data-[state=open]:rotate-0 group-data-[state=closed]:rotate-[180deg]" />
                 </button>
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <NavigationLink
                   href="/raw-ui/components/app-shell"
-                  Icon={LuPanelLeft}
                   label="App shell"
                 />
                 <NavigationLink
                   href="/raw-ui/components/accordion"
-                  Icon={LuMenuSquare}
                   label="Accordion"
                 />
 
                 <NavigationLink
                   href="/raw-ui/components/collapsible"
-                  Icon={LuLayoutDashboard}
                   label="Collapsible"
                 />
                 <NavigationLink
                   href="/raw-ui/components/dialog"
-                  Icon={LuLayoutDashboard}
                   label="Dialog"
                 />
                 <NavigationLink
                   href="/raw-ui/components/dropdown-menu"
-                  Icon={LuLayoutDashboard}
                   label="Dropdown Menu"
                 />
               </CollapsibleContent>
@@ -118,8 +97,8 @@ export default function Layout(props: { children: React.ReactNode }) {
           </nav>
         </AppShellSidebar>
         <AppShellContent>
-          <div className="p-4 h-full">
-            <div className="prose max-w-full h-full flex flex-col gap-4">
+          <div className="md:px-4 py-4 h-full">
+            <div className="prose max-w-screen overflow-scroll md:max-w-full h-full flex flex-col gap-4">
               {props.children}
             </div>
           </div>
