@@ -58,7 +58,7 @@ export default function Layout(props: { children: React.ReactNode }) {
     <div className="bg-stone-200 h-screen text-stone-700">
       <AppShell>
         <AppShellSidebar width="240px">
-          <nav className="p-4 py-6 bg-stone-200 h-full">
+          <nav className="p-4 md:py-6 bg-stone-200 h-full">
             <div>
               <NavHeader />
             </div>

@@ -28,10 +28,18 @@ export const AppShellSidebar = (
   props: PropsWithChildren<{ width: string }>
 ) => {
   const { width } = props;
-  const { isSidebarCollapsed } = useContext(AppShellContext);
+  const { isSidebarCollapsed, toggleSidebar } = useContext(AppShellContext);
   return (
     <>
       <div className="h-full block fixed md:hidden w-0 z-[100]">
+        <motion.div
+          onClick={() => toggleSidebar()}
+          className="w-screen h-full bg-black/10 absolute top-0 left-0 z-[-2]"
+          animate={{
+            opacity: isSidebarCollapsed ? 0 : 1,
+            pointerEvents: isSidebarCollapsed ? "none" : "auto",
+          }}
+        />
         <motion.div
           style={{
             width,
@@ -41,8 +49,9 @@ export const AppShellSidebar = (
             translateX: isSidebarCollapsed ? "-100%" : "0%",
           }}
           transition={{
-            type: "tween",
-            duration: 0.2,
+            type: "spring",
+            duration: 0.3,
+            bounce: isSidebarCollapsed ? 0 : 0.2,
           }}
         >
           {props.children}
