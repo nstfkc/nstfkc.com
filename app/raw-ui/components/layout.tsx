@@ -44,9 +44,12 @@ const NavigationLink = (props: { href: string; label: string }) => {
 const NavHeader = () => {
   const { isSidebarCollapsed, toggleSidebar } = useAppShell();
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between items-center">
       <span className="font-semibold px-2">raw ui</span>
-      <button className="md:hidden" onClick={toggleSidebar}>
+      <button
+        className="md:hidden size-8 flex justify-center items-center text-lg"
+        onClick={toggleSidebar}
+      >
         {isSidebarCollapsed ? <LuPanelLeftOpen /> : <LuPanelLeftClose />}
       </button>
     </div>
