@@ -1,5 +1,110 @@
 import { CollapsibleExample } from './CollapsibleExample'
 
-# Collapsible
+import { Breadcrumbs } from '../../ui/Breadcrumbs'
+import { Wrapper } from '../../ui/Wrapper'
+import { CodeCopy } from '@/components/CodeCopy'
 
+<Breadcrumbs breadcrumbs={[{ label: "Components", href:"/raw-ui/components" }, { label: "Collapsible" }]} />
+
+<Wrapper>
+# Collapsible
+An interactive component which expands/collapses a panel.
+
+## Dependencies
+
+<CodeCollapse showAll>
+```bash
+npm install framer-motion @radix-ui/react-collapsible
+```
+</CodeCollapse>
+
+## Example
+
+<ClearProse>
 <CollapsibleExample />
+</ClearProse>
+
+
+## Anatomy
+
+<CodeCollapse showAll>
+```tsx
+
+<Collapsible>
+  <CollapsibleTrigger />
+  <CollapsibleContent />
+</Collapsible>
+
+```
+</CodeCollapse>
+
+## How to use
+
+After you install the dependencies, all you need to do is to copy the following code into a file named `Accordion` in your project.
+
+<CodeCollapse>
+```tsx
+import { motion } from "framer-motion";
+
+import { Root, Content, Trigger } from "@radix-ui/react-collapsible";
+import { PropsWithChildren, createContext, useContext, useState } from "react";
+
+interface Props {
+  isInitiallyOpen?: boolean;
+}
+
+interface CollapsibleContextValue {
+  isOpen: boolean;
+}
+
+const CollapsibleContext = createContext({} as CollapsibleContextValue);
+
+export const Collapsible = (props: PropsWithChildren<Props>) => {
+  const { isInitiallyOpen = false } = props;
+  const [isOpen, setIsOpen] = useState(isInitiallyOpen);
+
+  return (
+    <CollapsibleContext.Provider value={{ isOpen }}>
+      <Root open={isOpen} onOpenChange={setIsOpen}>
+        {props.children}
+      </Root>
+    </CollapsibleContext.Provider>
+  );
+};
+
+export const CollapsibleContent = (
+  props: PropsWithChildren<{ collapsedHeight?: string }>
+) => {
+  const { collapsedHeight = "0px" } = props;
+  const { isOpen } = useContext(CollapsibleContext);
+  return (
+    <Content forceMount asChild>
+      <motion.div
+        style={{ overflow: "hidden" }}
+        animate={{ height: isOpen ? "auto" : collapsedHeight }}
+        transition={{
+          type: "spring",
+          bounce: isOpen ? 0.2 : 0,
+          duration: 0.3,
+        }}
+      >
+        {props.children}
+      </motion.div>
+    </Content>
+  );
+};
+
+export const CollapsibleTrigger = (props: {
+  children: JSX.Element | string;
+}) => {
+  return (
+    <Trigger asChild={typeof props.children !== "string"}>
+      {props.children}
+    </Trigger>
+  );
+};
+```
+</CodeCollapse>
+
+
+</Wrapper>

@@ -9,39 +9,62 @@ import {
 
 export const AccordionExample = () => {
   return (
-    <div>
-      <Accordion type="multiple" value={["item1"]}>
-        <AccordionItem value="item1">
+    <div className="flex flex-col gap-4 justify-center">
+      <h2 className="font-bold text-lg">F.A.Q</h2>
+      <Accordion
+        className="flex flex-col gap-2 max-w-md"
+        type="single"
+        value={"item1"}
+      >
+        <AccordionItem
+          value="item1"
+          className="bg-white/50 hover:bg-white p-4 rounded-xl"
+        >
           <AccordionItemTrigger>
-            <button>Item 1</button>
+            <button className="group font-medium w-full flex justify-between">
+              <span>1. What are the services you provide?</span>
+              <span className="group-data-[state=open]:hidden">+</span>
+              <span className="group-data-[state=closed]:hidden">-</span>
+            </button>
           </AccordionItemTrigger>
           <AccordionItemContent>
-            <div>
-              Content 1
-              <p>
-                Ac ut consequat semper viverra nam libero justo, laoreet sit
-                amet cursus sit amet, dictum sit amet justo donec enim diam,
-                vulputate ut pharetra! Tempor commodo, ullamcorper a lacus
-                vestibulum?
-              </p>
-            </div>
+            We are specialised in web development and design. We provide you our
+            expertise to bring your ideas to life.
           </AccordionItemContent>
         </AccordionItem>
-        <AccordionItem value="item2">
+        <AccordionItem
+          value="item2"
+          className="bg-white/50 hover:bg-white p-4 rounded-xl"
+        >
           <AccordionItemTrigger>
-            <button>Item 1</button>
+            <button className="group font-medium w-full flex justify-between">
+              <span>2. What makes us different?</span>
+              <span className="group-data-[state=open]:hidden">+</span>
+              <span className="group-data-[state=closed]:hidden">-</span>
+            </button>
           </AccordionItemTrigger>
-          <p>Preview</p>
           <AccordionItemContent>
-            <div>
-              Content 1
-              <p>
-                Ac ut consequat semper viverra nam libero justo, laoreet sit
-                amet cursus sit amet, dictum sit amet justo donec enim diam,
-                vulputate ut pharetra! Tempor commodo, ullamcorper a lacus
-                vestibulum?
-              </p>
-            </div>
+            We focus on providing the maximum value in minimum time to your
+            organisation. We understand your needs and provide pragmatic
+            solutions.
+          </AccordionItemContent>
+        </AccordionItem>
+        <AccordionItem
+          value="item3"
+          className="bg-white/50 hover:bg-white p-4 rounded-xl"
+        >
+          {" "}
+          <AccordionItemTrigger>
+            <button className="group font-medium w-full flex justify-between">
+              <span>3. How can we get started?</span>
+              <span className="group-data-[state=open]:hidden">+</span>
+              <span className="group-data-[state=closed]:hidden">-</span>
+            </button>
+          </AccordionItemTrigger>
+          <AccordionItemContent>
+            Go to our subscription page and pick the one fits to your needs.
+            Then we will set up a discovery call to pin point your problems and
+            start working on them immediately.
           </AccordionItemContent>
         </AccordionItem>
       </Accordion>

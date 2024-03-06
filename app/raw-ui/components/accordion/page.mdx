@@ -1,7 +1,239 @@
 import { AccordionExample } from "./AccordionExample"
 
+import { Breadcrumbs } from '../../ui/Breadcrumbs'
+import { Wrapper } from '../../ui/Wrapper'
+import { CodeCopy } from '@/components/CodeCopy'
+
+<Breadcrumbs breadcrumbs={[{ label: "Components", href:"/raw-ui/components" }, { label: 'Accordion' }]} />
+
+<Wrapper>
 # Accordion
 
-<AccordionExample />
+A vertically stacked set of interactive headings that each reveal an associated section of content.
+
+## Dependencies
+
+<CodeCollapse showAll>
+```bash
+npm install framer-motion @radix-ui/react-accordion
+```
+</CodeCollapse>
+
+## Anatomy
+
+<CodeCollapse showAll>
+
+```tsx
+<Accordion>
+  <AccordionItem>
+    <AccordionItemTrigger />
+    <AccordionItemContent />
+  <AccordionItem>
+</Accordion>
+```
+</CodeCollapse>
+
+## How to use
+
+After you install the dependencies, all you need to do is to copy the following code into a file named `Accordion` in your project.
+
+<CodeCollapse>
+```tsx
+import { motion } from "framer-motion";
+
+import {
+  Root,
+  Item,
+  Header,
+  Content,
+  Trigger,
+} from "@radix-ui/react-accordion";
+import {
+  ComponentProps,
+  PropsWithChildren,
+  createContext,
+  forwardRef,
+  useContext,
+  useState,
+} from "react";
+
+const AccordionContext = createContext<{
+  value: string | string[] | undefined;
+}>({
+  value: [],
+});
+
+export const Accordion = ({ value, ...props }: ComponentProps<typeof Root>) => {
+  const [_value, setValue] = useState(value);
+  return (
+    <AccordionContext.Provider value={{ value: _value }}>
+      <Root
+        {...(props as any)}
+        value={_value as string | string[]}
+        onValueChange={setValue}
+      />
+    </AccordionContext.Provider>
+  );
+};
+
+interface AccordionItemContextValue {
+  isActive: boolean;
+}
+
+const AccordionItemContext = createContext({} as AccordionItemContextValue);
+
+export const AccordionItem = forwardRef<
+  HTMLDivElement,
+  ComponentProps<typeof Item>
+>((props, ref) => {
+  const context = useContext(AccordionContext);
+
+  let isActive = false;
+  if (Array.isArray(context.value)) {
+    isActive = context.value.includes(props.value);
+  } else {
+    isActive = context.value === props.value;
+  }
+
+  return (
+    <AccordionItemContext.Provider value={{ isActive }}>
+      <Item {...props} ref={ref} />
+    </AccordionItemContext.Provider>
+  );
+});
+
+AccordionItem.displayName = "AccordionItem";
+
+export const AccordionItemContent = (
+  props: PropsWithChildren<{ className?: string }>
+) => {
+  const { isActive } = useContext(AccordionItemContext);
+  return (
+    <Content forceMount={true} asChild>
+      <motion.div
+        style={{ overflow: "hidden" }}
+        initial={{ height: isActive ? "auto" : 0 }}
+        animate={{ height: isActive ? "auto" : 0 }}
+        transition={{
+          type: "spring",
+          bounce: !isActive ? 0 : 0.2,
+          duration: 0.3,
+        }}
+      >
+        <div className={props.className}>{props.children}</div>
+      </motion.div>
+    </Content>
+  );
+};
+
+export const AccordionItemTrigger = (props: {
+  children: JSX.Element | string;
+  className?: string;
+}) => {
+  return (
+    <Header>
+      <Trigger
+        className={props.className}
+        asChild={typeof props.children !== "string"}
+      >
+        {props.children}
+      </Trigger>
+    </Header>
+  );
+};
+```
+</CodeCollapse>
+
+## Example
+
+<ClearProse>
+ <AccordionExample />
+</ClearProse>
+
+## Code
+
+<CodeCollapse>
+```tsx
+"use client";
+
+import {
+  Accordion,
+  AccordionItem,
+  AccordionItemContent,
+  AccordionItemTrigger,
+} from "./Accordion";
+
+export const AccordionExample = () => {
+  return (
+    <div className="flex flex-col gap-4 justify-center">
+      <h2 className="font-bold text-lg">F.A.Q</h2>
+      <Accordion
+        className="flex flex-col gap-2 max-w-md"
+        type="single"
+        value={"item1"}
+      >
+        <AccordionItem
+          value="item1"
+          className="bg-white/50 hover:bg-white p-4 rounded-xl"
+        >
+          <AccordionItemTrigger>
+            <button className="group font-medium w-full flex justify-between">
+              <span>1. What are the services you provide?</span>
+              <span className="group-data-[state=open]:hidden">+</span>
+              <span className="group-data-[state=closed]:hidden">-</span>
+            </button>
+          </AccordionItemTrigger>
+          <AccordionItemContent>
+            We are specialised in web development and design. We provide you our
+            expertise to bring your ideas to life.
+          </AccordionItemContent>
+        </AccordionItem>
+        <AccordionItem
+          value="item2"
+          className="bg-white/50 hover:bg-white p-4 rounded-xl"
+        >
+          <AccordionItemTrigger>
+            <button className="group font-medium w-full flex justify-between">
+              <span>2. What makes us different?</span>
+              <span className="group-data-[state=open]:hidden">+</span>
+              <span className="group-data-[state=closed]:hidden">-</span>
+            </button>
+          </AccordionItemTrigger>
+          <AccordionItemContent>
+            We focus on providing the maximum value in minimum time to your
+            organisation. We understand your needs and provide pragmatic
+            solutions.
+          </AccordionItemContent>
+        </AccordionItem>
+        <AccordionItem
+          value="item3"
+          className="bg-white/50 hover:bg-white p-4 rounded-xl"
+        >
+          {" "}
+          <AccordionItemTrigger>
+            <button className="group font-medium w-full flex justify-between">
+              <span>3. How can we get started?</span>
+              <span className="group-data-[state=open]:hidden">+</span>
+              <span className="group-data-[state=closed]:hidden">-</span>
+            </button>
+          </AccordionItemTrigger>
+          <AccordionItemContent>
+            Go to our subscription page and pick the one fits to your needs.
+            Then we will set up a discovery call to pin point your problems and
+            start working on them immediately.
+          </AccordionItemContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+};
+```
+</CodeCollapse>
+
+## Recipes
+
+TBD
+
+</Wrapper>
 
 

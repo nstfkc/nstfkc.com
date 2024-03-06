@@ -14,7 +14,6 @@ As an example you can check this website. Click on the panel icon on the left si
 
 ## Dependencies
 
-
 <CodeCollapse showAll>
 ```bash
 npm install framer-motion
@@ -126,11 +125,16 @@ export const AppShellSidebar = (
 };
 
 export const AppShellContent = (props: PropsWithChildren) => {
-  return <div className="grow h-full">{props.children}</div>;
+  return <div className="md:grow h-full">{props.children}</div>;
 };
 
 ```
 </CodeCollapse>
 
+## Recipes
+
+TBD
+
 </Wrapper>
+
 

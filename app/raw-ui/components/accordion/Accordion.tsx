@@ -63,7 +63,9 @@ export const AccordionItem = forwardRef<
 
 AccordionItem.displayName = "AccordionItem";
 
-export const AccordionItemContent = (props: PropsWithChildren) => {
+export const AccordionItemContent = (
+  props: PropsWithChildren<{ className?: string }>
+) => {
   const { isActive } = useContext(AccordionItemContext);
   return (
     <Content forceMount={true} asChild>
@@ -77,7 +79,7 @@ export const AccordionItemContent = (props: PropsWithChildren) => {
           duration: 0.3,
         }}
       >
-        {props.children}
+        <div className={props.className}>{props.children}</div>
       </motion.div>
     </Content>
   );
@@ -85,10 +87,14 @@ export const AccordionItemContent = (props: PropsWithChildren) => {
 
 export const AccordionItemTrigger = (props: {
   children: JSX.Element | string;
+  className?: string;
 }) => {
   return (
     <Header>
-      <Trigger asChild={typeof props.children !== "string"}>
+      <Trigger
+        className={props.className}
+        asChild={typeof props.children !== "string"}
+      >
         {props.children}
       </Trigger>
     </Header>

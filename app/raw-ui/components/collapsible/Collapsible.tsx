@@ -26,13 +26,16 @@ export const Collapsible = (props: PropsWithChildren<Props>) => {
   );
 };
 
-export const CollapsibleContent = (props: PropsWithChildren) => {
+export const CollapsibleContent = (
+  props: PropsWithChildren<{ collapsedHeight?: string }>
+) => {
+  const { collapsedHeight = "0px" } = props;
   const { isOpen } = useContext(CollapsibleContext);
   return (
     <Content forceMount asChild>
       <motion.div
         style={{ overflow: "hidden" }}
-        animate={{ height: isOpen ? "auto" : "0px" }}
+        animate={{ height: isOpen ? "auto" : collapsedHeight }}
         transition={{
           type: "spring",
           bounce: isOpen ? 0.2 : 0,
