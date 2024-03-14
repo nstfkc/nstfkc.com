@@ -15,7 +15,7 @@ export const Breadcrumbs = (props: { breadcrumbs: Breadcrumb[] }) => {
       <div>
         <button
           onClick={toggleSidebar}
-          className="outline-none size-8 flex items-center justify-center text-lg"
+          className="outline-none size-8 flex items-center justify-center text-md"
         >
           {isSidebarCollapsed ? <LuPanelLeftOpen /> : <LuPanelLeftClose />}
         </button>

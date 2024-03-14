@@ -9,3 +9,13 @@ export const Wrapper = (props: PropsWithChildren) => {
     </div>
   );
 };
+
+export const Container = (props: PropsWithChildren) => {
+  return <div className="max-w-5xl mx-auto">{props.children}</div>;
+};
+
+export const Section = (props: PropsWithChildren) => {};
+
+export const H1 = (props: PropsWithChildren) => {
+  return <div>HI</div>;
+};
