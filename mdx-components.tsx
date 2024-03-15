@@ -1,7 +1,11 @@
 import type { MDXComponents } from "mdx/types";
 import { Code } from "bright";
 import { CodeCollapse } from "./components/Collapsible";
-import { ClearProse } from "./components/ClearProse";
+import { ComponentProps } from "react";
+
+const ClearProse = (props: ComponentProps<"div">) => {
+  return <div className="no-prose" {...props}></div>;
+};
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
