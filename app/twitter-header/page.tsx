@@ -1,6 +1,6 @@
 import { MdDesignServices } from "react-icons/md";
 import { AiFillCode } from "react-icons/ai";
-import { IoIosRocket } from "react-icons/io";
+import { IoIosRocket, IoIosPerson } from "react-icons/io";
 
 const TwitterHeader = () => {
   return (
@@ -20,9 +20,9 @@ const TwitterHeader = () => {
         </div>
         <div className="flex flex-col items-center gap-1">
           <div className="twitter-header-item flex size-16 items-center justify-center rounded-xl">
-            <IoIosRocket className="text-2xl" />
+            <IoIosPerson className="text-2xl" />
           </div>
-          <span className="text-xs font-semibold tracking-wide">Ship</span>
+          <span className="text-xs font-semibold tracking-wide">UX</span>
         </div>
       </div>
     </div>
