@@ -1,75 +1,44 @@
 import {
   ComponentProps,
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useRef,
   useSyncExternalStore,
 } from "react";
 
+class Observable {
+  subscriber: () => { value: any; error: string | null } = () => ({
+    value: null,
+    error: null,
+  });
+
+  subscribe = (sub: () => { value: any; error: string | null }) => {
+    this.subscriber = sub;
+    return () => {
+      this.subscriber = () => ({ error: null, value: null });
+    };
+  };
+
+  next = () => {
+    return this?.subscriber();
+  };
+}
+
 class InputSubject {
   private state = {
     isDirty: false,
-    isValid: true,
     value: null,
     error: null,
   };
   private subscribers: Set<any> = new Set();
-  private validateFn: (value: any) => string | null;
 
-  constructor(initialValue?: any, validateFn?: (value: any) => string | null) {
-    this.validateFn = validateFn ?? (() => null);
+  constructor(initialValue?: any) {
     if (initialValue) {
       this.state = { ...this.state, value: initialValue };
     }
   }
-
-  validate = (value: any) => {
-    const error = this.validateFn(value);
-    if (error) {
-      this.next({
-        value: this.state.value,
-        isDirty: true,
-        isValid: false,
-        error,
-      });
-      return error;
-    }
-    return null;
-  };
-
-  setError = (error: string | null) => {
-    this.next({
-      ...this.state,
-      error,
-    });
-  };
-
-  setIsDirty = (isDirty: boolean) => {
-    if (isDirty !== this.state.isDirty) {
-      this.next({
-        ...this.state,
-        isDirty,
-      });
-    }
-  };
-
-  setIsValid = (isValid: boolean) => {
-    if (isValid !== this.state.isValid) {
-      this.next({
-        ...this.state,
-        isValid,
-      });
-    }
-  };
-
-  setValue = (value: any) => {
-    if (value !== this.state.value) {
-      this.next({
-        ...this.state,
-        value,
-      });
-    }
-  };
 
   subscribe = (fn: any) => {
     this.subscribers.add(fn);
@@ -98,6 +67,7 @@ interface FormProps extends Omit<ComponentProps<"form">, "onSubmit"> {
 }
 
 interface FormContextValue {
+  getObservables: (name: string) => Observable;
   getInputValueSubject: (
     name: string,
     initialValue?: any,
@@ -112,25 +82,31 @@ export const Form = (props: FormProps) => {
 
   const subjectsRef = useRef<Map<string, InputSubject>>(new Map());
 
-  const getInputValueSubject = (
-    name: string,
-    initialValue?: any,
-    validateFn?: (value: any) => string | null
-  ) => {
+  const observablesRef = useRef<Map<string, Observable>>(new Map());
+
+  const getInputValueSubject = (name: string, initialValue?: any) => {
     if (!subjectsRef.current.has(name)) {
-      subjectsRef.current.set(name, new InputSubject(initialValue, validateFn));
+      subjectsRef.current.set(name, new InputSubject(initialValue));
     }
     return subjectsRef.current.get(name)!;
+  };
+
+  const getObservables = (name: string) => {
+    if (!observablesRef.current.has(name)) {
+      observablesRef.current.set(name, new Observable());
+    }
+    return observablesRef.current.get(name)!;
   };
 
   const beforeSubmit = () => {
     let values: Record<string, any> = {};
     let errors: Record<string, any> = {};
 
-    for (const [name, subject] of subjectsRef.current.entries()) {
-      const state = subject.getState();
-      errors[name] = subject.validate(state.value);
-      values[name] = state.value;
+    let cbs = [];
+    for (const [name, observable] of observablesRef.current.entries()) {
+      const { error, value } = observable.next();
+      values[name] = value;
+      errors[name] = error;
     }
 
     return {
@@ -140,12 +116,12 @@ export const Form = (props: FormProps) => {
   };
 
   return (
-    <FormContext.Provider value={{ getInputValueSubject }}>
+    <FormContext.Provider value={{ getInputValueSubject, getObservables }}>
       <form
         {...rest}
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          const { errors, values } = beforeSubmit();
+          const { errors, values } = await beforeSubmit();
           const hasErrors = Object.values(errors).some((error) => error);
           if (!hasErrors) {
             onSubmit(e, {});
@@ -178,9 +154,28 @@ export const Input = (
   }
 ) => {
   const { validate = () => null, ...inputProps } = props;
-  const { error, isDirty, value } = useInputState(props);
-  const { getInputValueSubject } = useContext(FormContext);
+  const { getInputValueSubject, getObservables } = useContext(FormContext);
   const subject = getInputValueSubject(props.name);
+  const observable = getObservables(props.name);
+  const { isDirty, value } = useInputState(props);
+
+  const validateFn = useCallback(() => {
+    const { value, isDirty } = subject.getState();
+    const error = validate(value);
+    subject.next({
+      value,
+      error,
+      isDirty,
+    });
+    return {
+      error,
+      value,
+    };
+  }, [validate, subject]);
+
+  useEffect(() => {
+    return observable.subscribe(validateFn);
+  }, [validateFn, observable]);
 
   return (
     <input

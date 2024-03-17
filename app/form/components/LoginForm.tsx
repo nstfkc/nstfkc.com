@@ -11,13 +11,11 @@ interface InputFieldProps extends ComponentProps<typeof Input> {
 const InputField = (props: InputFieldProps) => {
   const { label, description, ...inputProps } = props;
 
-  const state = useInputState(inputProps);
-
-  const { error, isDirty, value } = state;
+  const { error, isDirty, value } = useInputState(inputProps);
 
   return (
     <label
-      data-has-error={!!error && isDirty}
+      data-has-error={!!error}
       className={[
         "group px-2 py-1 rounded-lg",
         "bg-zinc-100 block focus-within:border-zinc-400 border-2",
@@ -39,7 +37,7 @@ const InputField = (props: InputFieldProps) => {
         </div>
         <Input
           {...inputProps}
-          className="bg-transparent tracking-wide outline-none"
+          className="bg-[transparent!important] tracking-wide outline-none"
         />
       </div>
       <div className="flex">
@@ -63,7 +61,6 @@ export const LoginForm = () => {
     >
       <div className="flex flex-col gap-4">
         <InputField
-          autoFocus={true}
           label="Email"
           type="email"
           name="email"
