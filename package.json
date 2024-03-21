@@ -43,7 +43,8 @@
     "react-icons": "^5.0.0",
     "react-resizable-panels": "^2.0.11",
     "sonner": "^1.4.0",
-    "uniqolor": "^1.1.1"
+    "uniqolor": "^1.1.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "typescript": "^5",

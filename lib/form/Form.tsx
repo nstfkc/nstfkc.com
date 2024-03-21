@@ -1,43 +1,34 @@
 import {
   ComponentProps,
   createContext,
-  useCallback,
   useContext,
-  useEffect,
   useRef,
   useSyncExternalStore,
 } from "react";
 
-class Observable {
-  subscriber: () => { value: any; error: string | null } = () => ({
-    value: null,
-    error: null,
-  });
-
-  subscribe = (sub: () => { value: any; error: string | null }) => {
-    this.subscriber = sub;
-    return () => {
-      this.subscriber = () => ({ error: null, value: null });
-    };
-  };
-
-  next = () => {
-    return this?.subscriber();
-  };
-}
+import * as z from "zod";
 
 class InputSubject {
+  type: string;
   private state = {
     isDirty: false,
     value: null,
     error: null,
+    isFocused: false,
+    isTouched: false,
+    isInvalid: false,
   };
   private subscribers: Set<any> = new Set();
+  public validateFn: (value: any) => string | null;
 
-  constructor(initialValue?: any) {
-    if (initialValue) {
-      this.state = { ...this.state, value: initialValue };
-    }
+  constructor(
+    initialValue: any,
+    type: string,
+    validateFn?: (value: any) => string | null
+  ) {
+    this.state.value = initialValue;
+    this.validateFn = validateFn ?? (() => null);
+    this.type = type;
   }
 
   subscribe = (fn: any) => {
@@ -55,6 +46,7 @@ class InputSubject {
     this.state = {
       ...this.state,
       ...state,
+      isInvalid: !!state.error,
     };
     this.subscribers.forEach((subscriber) => {
       subscriber(this.state);
@@ -62,51 +54,110 @@ class InputSubject {
   };
 }
 
-interface FormProps extends Omit<ComponentProps<"form">, "onSubmit"> {
+interface FormProps<T = {}> extends Omit<ComponentProps<"form">, "onSubmit"> {
   onSubmit: (e: any, formState: any) => void;
+  schema?: z.ZodType<T>;
 }
 
 interface FormContextValue {
-  getObservables: (name: string) => Observable;
-  getInputValueSubject: (
-    name: string,
-    initialValue?: any,
-    validateFn?: any
-  ) => InputSubject;
+  validateSingleField: (name: string, value: any) => string | null;
+  getInputValueSubject: (props: ComponentProps<typeof Input>) => InputSubject;
+  getInputValueSubjectByName: (name: string) => InputSubject;
 }
 
 const FormContext = createContext({} as FormContextValue);
 
-export const Form = (props: FormProps) => {
-  const { onSubmit, ...rest } = props;
+const inputTypeInitialValueMap = {
+  text: "",
+  number: 0,
+  checkbox: false,
+  email: "",
+  password: "",
+} as const;
 
-  const subjectsRef = useRef<Map<string, InputSubject>>(new Map());
+export function Form<T>(props: FormProps<T>) {
+  const { onSubmit, schema, ...rest } = props;
 
-  const observablesRef = useRef<Map<string, Observable>>(new Map());
+  const inputSubjectsRef = useRef<Map<string, InputSubject>>(new Map());
 
-  const getInputValueSubject = (name: string, initialValue?: any) => {
-    if (!subjectsRef.current.has(name)) {
-      subjectsRef.current.set(name, new InputSubject(initialValue));
+  const getInputValueSubject = (props: ComponentProps<typeof Input>) => {
+    if (!inputSubjectsRef.current.has(props.name)) {
+      const initialValue =
+        props.value ??
+        props.defaultValue ??
+        inputTypeInitialValueMap?.[
+          props.type! as keyof typeof inputTypeInitialValueMap
+        ] ??
+        "";
+
+      inputSubjectsRef.current.set(
+        props.name,
+        new InputSubject(initialValue, props.type ?? "text", props.validate)
+      );
     }
-    return subjectsRef.current.get(name)!;
+    return inputSubjectsRef.current.get(props.name)!;
   };
 
-  const getObservables = (name: string) => {
-    if (!observablesRef.current.has(name)) {
-      observablesRef.current.set(name, new Observable());
+  const getInputValueSubjectByName = (name: string) => {
+    return inputSubjectsRef.current.get(name)!;
+  };
+
+  const validateSingleField = (name: string, value: any) => {
+    let values: Record<string, any> = {};
+
+    for (const [name, inputSubject] of inputSubjectsRef.current.entries()) {
+      const { value } = inputSubject.getState();
+      values[name] = value;
     }
-    return observablesRef.current.get(name)!;
+
+    values[name] = value;
+
+    const inputSubject = inputSubjectsRef.current.get(name);
+
+    if (inputSubject) {
+      const error = inputSubject.validateFn(value);
+      if (error) {
+        return error;
+      }
+      if (schema) {
+        const result = schema.safeParse(values);
+        if (!result.success) {
+          for (let schemaError of result.error.errors) {
+            if (schemaError.path[0] === name) {
+              return schemaError.message;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
   };
 
   const beforeSubmit = () => {
     let values: Record<string, any> = {};
     let errors: Record<string, any> = {};
 
-    let cbs = [];
-    for (const [name, observable] of observablesRef.current.entries()) {
-      const { error, value } = observable.next();
+    for (const [name, inputSubject] of inputSubjectsRef.current.entries()) {
+      const { value } = inputSubject.getState();
+      const error = inputSubject.validateFn(values[name]);
       values[name] = value;
       errors[name] = error;
+    }
+
+    if (schema) {
+      const result = schema.safeParse(values);
+
+      if (!result.success) {
+        result.error.errors.forEach((schemaError) => {
+          errors[String(schemaError.path[0])] = schemaError.message;
+        });
+      }
+    }
+
+    for (const [name, inputSubject] of inputSubjectsRef.current.entries()) {
+      const error = errors[name] ? errors[name] : null;
+      inputSubject?.next({ error, isTouched: true });
     }
 
     return {
@@ -115,31 +166,48 @@ export const Form = (props: FormProps) => {
     };
   };
 
+  const reset = () => {
+    for (const [, inputSubject] of inputSubjectsRef.current.entries()) {
+      inputSubject.next({
+        error: null,
+        isDirty: false,
+        isTouched: false,
+        isInvalid: false,
+        value:
+          inputTypeInitialValueMap?.[
+            inputSubject.type as keyof typeof inputTypeInitialValueMap
+          ] ?? "",
+      });
+    }
+  };
+
   return (
-    <FormContext.Provider value={{ getInputValueSubject, getObservables }}>
+    <FormContext.Provider
+      value={{
+        getInputValueSubject,
+        getInputValueSubjectByName,
+        validateSingleField,
+      }}
+    >
       <form
         {...rest}
-        onSubmit={async (e) => {
+        onSubmit={(e) => {
           e.preventDefault();
-          const { errors, values } = await beforeSubmit();
+          const { errors, values } = beforeSubmit();
           const hasErrors = Object.values(errors).some((error) => error);
           if (!hasErrors) {
-            onSubmit(e, {});
+            onSubmit(e, { values, reset });
           }
         }}
       />
     </FormContext.Provider>
   );
-};
+}
 
 export function useInputState(props: ComponentProps<typeof Input>) {
   const { getInputValueSubject } = useContext(FormContext);
-  const initialValue = props.value ?? props.defaultValue;
-  const subject = getInputValueSubject(
-    props.name,
-    initialValue,
-    props.validate
-  );
+
+  const subject = getInputValueSubject(props);
   return useSyncExternalStore(
     subject.subscribe,
     subject.getState,
@@ -153,56 +221,126 @@ export const Input = (
     validate?: (value: any) => string | null;
   }
 ) => {
-  const { validate = () => null, ...inputProps } = props;
-  const { getInputValueSubject, getObservables } = useContext(FormContext);
-  const subject = getInputValueSubject(props.name);
-  const observable = getObservables(props.name);
-  const { isDirty, value } = useInputState(props);
-
-  const validateFn = useCallback(() => {
-    const { value, isDirty } = subject.getState();
-    const error = validate(value);
-    subject.next({
-      value,
-      error,
-      isDirty,
-    });
-    return {
-      error,
-      value,
-    };
-  }, [validate, subject]);
-
-  useEffect(() => {
-    return observable.subscribe(validateFn);
-  }, [validateFn, observable]);
+  const {
+    validate = () => null,
+    defaultValue: _,
+    onChange,
+    onBlur,
+    onFocus,
+    ...inputProps
+  } = props;
+  const { getInputValueSubject, validateSingleField } = useContext(FormContext);
+  const subject = getInputValueSubject(props);
+  const { value, isDirty, error, isInvalid } = useInputState(props);
 
   return (
     <input
-      value={value ?? ""}
+      value={value!}
       onChange={(e) => {
         const nextValue = e.target.value;
-        const error = validate(nextValue);
+        const nextError = validateSingleField(props.name, nextValue);
         subject.next({
-          error,
+          error: isInvalid ? nextError : error,
           value: nextValue,
-          isDirty,
+          isDirty: true,
         });
+        onChange?.(e);
       }}
       onBlur={(e) => {
-        const error = validate(e.target.value);
-        const value = e.target.value;
         subject.next({
-          error,
-          isDirty: value !== "" || value !== null,
-          value,
+          error: isDirty ? validateSingleField(props.name, value) : null,
+          isFocused: false,
+          isTouched: true,
         });
+        onBlur?.(e);
       }}
-      onFocus={() => {
-        // focus
+      onFocus={(e) => {
+        subject.next({ isFocused: true });
+        onFocus?.(e);
       }}
       type="text"
       {...inputProps}
     />
   );
 };
+
+export const Checkbox = (
+  props: ComponentProps<"input"> & {
+    name: string;
+    validate?: (value: any) => string | null;
+  }
+) => {
+  const {
+    validate = () => null,
+    defaultValue: _,
+    defaultChecked: __,
+    onChange,
+    onBlur,
+    onFocus,
+    type = "checkbox",
+    ...inputProps
+  } = props;
+  const { getInputValueSubject, validateSingleField } = useContext(FormContext);
+  const subject = getInputValueSubject({ ...props, type: "checkbox" });
+  const { value, isDirty } = useInputState(props);
+
+  return (
+    <input
+      checked={value!}
+      onChange={(e) => {
+        const nextValue = e.target.checked;
+        subject.next({
+          error: validateSingleField(props.name, nextValue),
+          value: nextValue,
+          isDirty: true,
+        });
+        onChange?.(e);
+      }}
+      onBlur={(e) => {
+        subject.next({
+          error: isDirty ? validateSingleField(props.name, value) : null,
+          isFocused: false,
+          isTouched: true,
+        });
+        onBlur?.(e);
+      }}
+      onFocus={(e) => {
+        subject.next({ isFocused: true });
+        onFocus?.(e);
+      }}
+      type="checkbox"
+      {...inputProps}
+    />
+  );
+};
+
+function useInputError(name: string) {
+  const { getInputValueSubjectByName } = useContext(FormContext);
+  const subject = getInputValueSubjectByName(name);
+  const state = useSyncExternalStore(
+    subject.subscribe,
+    subject.getState,
+    subject.getState
+  );
+  return state.error;
+}
+
+export const ErrorMessage = (
+  props: ComponentProps<"span"> & {
+    name: string;
+    render?: (error: string) => React.ReactNode;
+  }
+) => {
+  const { name, render, ...spanProps } = props;
+  const error = useInputError(props.name);
+  if (error) {
+    if (render) {
+      return render(error);
+    }
+    return <span {...spanProps}>{error}</span>;
+  }
+  return null;
+};
+
+// TODO:
+// - Make errors an array to show how many errors there are
