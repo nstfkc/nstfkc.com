@@ -34,10 +34,10 @@ const InputField = (props: InputFieldProps) => {
     >
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between gap-4">
-          <span className="text-xs font-semibold opacity-50">{label}</span>
+          <span className="text-sm font-semibold opacity-50">{label}</span>
           <span
             className={[
-              "text-xs transition",
+              "text-sm transition",
               showDescription ? "opacity-60" : "opacity-0",
             ].join(" ")}
           >
@@ -51,7 +51,7 @@ const InputField = (props: InputFieldProps) => {
       </div>
       <div className="flex">
         <div>
-          <div className="text-xs text-red-400 group-data-[has-error=true]:max-h-[100px] max-h-0 overflow-hidden duration-[300ms] transition-all">
+          <div className="text-sm text-red-400 group-data-[has-error=true]:max-h-[100px] max-h-0 overflow-hidden duration-[300ms] transition-all">
             <div className="py-1">{error ?? <wbr />}</div>
           </div>
         </div>
@@ -62,7 +62,7 @@ const InputField = (props: InputFieldProps) => {
 
 const schema = z
   .object({
-    fullName: z.string().min(3, "Too short"),
+    fullName: z.string().min(2, "Full name should be longer than 2 characters"),
     email: z.string().email("Please enter a valid email address"),
     password: z
       .string()
@@ -105,10 +105,11 @@ export const RegisterForm = () => {
     >
       <div className="flex flex-col gap-4">
         <InputField
+          autoFocus
           label="Full Name"
           type="text"
           name="fullName"
-          description="How others will call you"
+          description="How your name will be displayed"
         />
         <InputField
           label="Email"

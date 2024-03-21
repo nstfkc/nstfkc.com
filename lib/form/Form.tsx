@@ -24,8 +24,10 @@ class InputSubject {
   constructor(
     initialValue: any,
     type: string,
+    autoFocus = false,
     validateFn?: (value: any) => string | null
   ) {
+    this.state.isFocused = autoFocus;
     this.state.value = initialValue;
     this.validateFn = validateFn ?? (() => null);
     this.type = type;
@@ -92,7 +94,12 @@ export function Form<T>(props: FormProps<T>) {
 
       inputSubjectsRef.current.set(
         props.name,
-        new InputSubject(initialValue, props.type ?? "text", props.validate)
+        new InputSubject(
+          initialValue,
+          props.type ?? "text",
+          props.autoFocus,
+          props.validate
+        )
       );
     }
     return inputSubjectsRef.current.get(props.name)!;
@@ -149,7 +156,7 @@ export function Form<T>(props: FormProps<T>) {
       const result = schema.safeParse(values);
 
       if (!result.success) {
-        result.error.errors.forEach((schemaError) => {
+        result.error.errors.reverse().forEach((schemaError) => {
           errors[String(schemaError.path[0])] = schemaError.message;
         });
       }
