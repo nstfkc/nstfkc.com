@@ -12,8 +12,18 @@ import connect_modal from "../public/assets/connect-modal.png";
 import payment_modal from "../public/assets/payment-modal.png";
 import email_confirm from "../public/assets/email-confirm.png";
 import minimalistic_music_player from "../public/assets/minimalistic-music-player.png";
+import props from "../public/assets/props.png";
 
 export const work = [
+  {
+    label: "Property management app",
+    url: "/props",
+    images: [props],
+    designer: {
+      label: "@nurpraditya",
+      url: "https://twitter.com/nurpraditya",
+    },
+  },
   {
     label: "Minimalistic Music Player",
     url: "/minimalistic-music-player",

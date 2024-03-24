@@ -26,7 +26,7 @@ const SidebarLink = (props: PropsWithChildren<{ active?: boolean }>) => {
 
 export const Sidebar = () => {
   return (
-    <div className="h-full flex flex-col backdrop-blur-md bg-black/20 border-l border-stone-600">
+    <div className="h-full flex flex-col backdrop-blur-md bg-black/20 border-r border-stone-800">
       <div>
         <div className="px-6 border-b border-stone-800 h-[60px] flex items-center justify-between">
           <div>
