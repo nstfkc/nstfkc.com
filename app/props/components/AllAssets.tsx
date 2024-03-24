@@ -48,7 +48,7 @@ export const AllAssets = () => {
   return (
     <div className="flex flex-col gap-3">
       <div>All Assets</div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {assets.map((asset) => (
           <div key={asset.id} className="col-span-1">
             <Card>

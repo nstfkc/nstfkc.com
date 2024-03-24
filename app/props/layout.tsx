@@ -1,17 +1,25 @@
 import { Sidebar } from "./components/Sidebar";
 import { ReactNode } from "react";
+import {
+  AppShell,
+  AppShellContent,
+  AppShellSidebar,
+} from "./components/AppShell";
 
 import "./styles.css";
+import { AppContentWrapper } from "./components/AppContentWrapper";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="text-gray-200 bg-stone-900 h-dvh w-screen">
-      <div className="flex h-full">
-        <div className="w-[240px] border-r-[1px] border-stone-800 h-full">
+    <div className="text-gray-200 bg-stone-900 h-dvh w-screen overflow-y-scroll">
+      <AppShell>
+        <AppShellSidebar width="240px">
           <Sidebar />
-        </div>
-        <div className="flex-1">{children}</div>
-      </div>
+        </AppShellSidebar>
+        <AppShellContent>
+          <AppContentWrapper>{children}</AppContentWrapper>
+        </AppShellContent>
+      </AppShell>
     </div>
   );
 };
