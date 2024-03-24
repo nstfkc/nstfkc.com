@@ -181,9 +181,16 @@ const Light = ({ player }: { player: MusicPlayer }) => {
 
 export const Player = () => {
   const player = useMusicPlayer(songs.map((s) => s.url));
+  const [render, setRender] = useState(false);
 
   const { currentUrl } = useMusicPlayerState(player);
   const song = songs.find((s) => s.url === currentUrl)!;
+
+  useEffect(() => {
+    setRender(true);
+  }, []);
+
+  if (!render) return null;
 
   return (
     <div
