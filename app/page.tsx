@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { work } from "./data";
 import Image from "next/image";
-import { LuArrowUpRightSquare, LuCode2, LuLink2 } from "react-icons/lu";
+import { LuArrowUpRightSquare, LuCode2 } from "react-icons/lu";
 
 const Home = () => {
   return (
-    <div className="bg-gradient-to-tr from-zinc-200 to-zinc-50 text-zinc-700">
+    <div className="bg-gradient-to-tr from-zinc-200 to-zinc-50 text-zinc-700 font-mono">
       <div className="container max-w-xl mx-auto flex flex-col gap-8 py-8">
         {work.map((item) => (
           <div
